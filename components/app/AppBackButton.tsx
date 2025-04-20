@@ -1,9 +1,10 @@
-import React from 'react';
-import { Pressable, PressableProps, Text } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ArrowLeft } from 'phosphor-react-native';
-import { cn } from '~/lib/utils';
+import React from 'react';
+import { Pressable, PressableProps, Text } from 'react-native';
+
 import { useColorScheme } from '~/lib/useColorScheme';
+import { cn } from '~/lib/utils';
 
 interface AppBackButtonProps extends PressableProps {
   iconSize?: number;
@@ -12,7 +13,10 @@ interface AppBackButtonProps extends PressableProps {
   className?: string;
 }
 
-export const AppBackButton = React.forwardRef<React.ElementRef<typeof Pressable>, AppBackButtonProps>(
+export const AppBackButton = React.forwardRef<
+  React.ElementRef<typeof Pressable>,
+  AppBackButtonProps
+>(
   (
     {
       iconSize = 28,
@@ -22,7 +26,7 @@ export const AppBackButton = React.forwardRef<React.ElementRef<typeof Pressable>
       disabled = false,
       ...props
     },
-    ref
+    ref,
   ) => {
     const router = useRouter();
     const { colorScheme } = useColorScheme();
@@ -34,7 +38,7 @@ export const AppBackButton = React.forwardRef<React.ElementRef<typeof Pressable>
         className={cn(
           'flex-row items-center gap-2 mb-8 w-full',
           className,
-          disabled && 'opacity-60'
+          disabled && 'opacity-60',
         )}
         onPress={() => router.back()}
         accessibilityRole="button"
@@ -43,11 +47,13 @@ export const AppBackButton = React.forwardRef<React.ElementRef<typeof Pressable>
       >
         <ArrowLeft size={iconSize} color={iconColor} />
         {label ? (
-          <Text className={cn('text-base text-foreground', labelClassName)}>{label}</Text>
+          <Text className={cn('text-base text-foreground', labelClassName)}>
+            {label}
+          </Text>
         ) : null}
       </Pressable>
     );
-  }
+  },
 );
 
 AppBackButton.displayName = 'AppBackButton';

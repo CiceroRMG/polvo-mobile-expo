@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useState, useEffect, useRef } from 'react';
 
 interface UsePasswordRecoveryCooldownOptions {
   cooldownSeconds?: number;
@@ -19,7 +19,9 @@ export function usePasswordRecoveryCooldown({
       if (lastSent) {
         const lastSentDate = new Date(parseInt(lastSent, 10));
         const now = new Date();
-        const diff = Math.floor((now.getTime() - lastSentDate.getTime()) / 1000);
+        const diff = Math.floor(
+          (now.getTime() - lastSentDate.getTime()) / 1000,
+        );
         if (diff < cooldownSeconds) setCooldown(cooldownSeconds - diff);
       }
     })();
@@ -30,7 +32,7 @@ export function usePasswordRecoveryCooldown({
 
   useEffect(() => {
     if (cooldown > 0) {
-      cooldownRef.current = setTimeout(() => setCooldown((c) => c - 1), 1000);
+      cooldownRef.current = setTimeout(() => setCooldown(c => c - 1), 1000);
     } else if (cooldownRef.current) {
       clearTimeout(cooldownRef.current);
       cooldownRef.current = null;

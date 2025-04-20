@@ -1,9 +1,17 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import * as SecureStore from 'expo-secure-store';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
-import { tokenManager } from './tokenManager';
+import * as SecureStore from 'expo-secure-store';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from 'react';
+
 import api from '../api';
+
+import { tokenManager } from './tokenManager';
 
 export const STORAGE_KEYS = {
   USER_DATA: '@polvo-app:user-data',
@@ -47,7 +55,9 @@ export const useAuth = (): AuthContextType => {
   return context;
 };
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
@@ -82,9 +92,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (data.success && data.data) {
         const userData: User = data.data;
 
-        await AsyncStorage.setItem(STORAGE_KEYS.USER_DATA, JSON.stringify(userData));
-        await SecureStore.setItemAsync(STORAGE_KEYS.AUTH_TOKEN, userData.authenticationKey);
-        await SecureStore.setItemAsync(STORAGE_KEYS.ACCESS_KEY, userData.accessKey);
+        await AsyncStorage.setItem(
+          STORAGE_KEYS.USER_DATA,
+          JSON.stringify(userData),
+        );
+        await SecureStore.setItemAsync(
+          STORAGE_KEYS.AUTH_TOKEN,
+          userData.authenticationKey,
+        );
+        await SecureStore.setItemAsync(
+          STORAGE_KEYS.ACCESS_KEY,
+          userData.accessKey,
+        );
 
         tokenManager.setAuthToken(userData.authenticationKey);
         tokenManager.setAccessKey(userData.accessKey);

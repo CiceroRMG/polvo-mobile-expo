@@ -1,5 +1,6 @@
 import React from 'react';
 import { Pressable, PressableProps, Text } from 'react-native';
+
 import { cn } from '~/lib/utils';
 
 interface AppTextButtonProps extends PressableProps {
@@ -8,12 +9,12 @@ interface AppTextButtonProps extends PressableProps {
   rippleColor?: string;
 }
 
-export function AppTextButton({ 
-  children, 
-  className = '', 
+export function AppTextButton({
+  children,
+  className = '',
   textClassName = '',
   rippleColor = 'rgba(0, 0, 0, 0.014)',
-  ...props 
+  ...props
 }: AppTextButtonProps) {
   return (
     <Pressable
@@ -22,7 +23,12 @@ export function AppTextButton({
       {...props}
     >
       {typeof children === 'string' ? (
-        <Text className={cn('text-main-purple font-semibold text-sm', textClassName)}>
+        <Text
+          className={cn(
+            'text-main-purple font-semibold text-sm',
+            textClassName,
+          )}
+        >
           {children}
         </Text>
       ) : (

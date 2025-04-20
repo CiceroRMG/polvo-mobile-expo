@@ -1,10 +1,13 @@
 import axios from 'axios';
+
 import { tokenManager } from './auth/tokenManager';
 
 export const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
 if (!API_URL) {
-  throw new Error('API_URL is not defined. Please set it in your environment variables.');
+  throw new Error(
+    'API_URL is not defined. Please set it in your environment variables.',
+  );
 }
 
 const api = axios.create({
@@ -14,7 +17,7 @@ const api = axios.create({
   },
 });
 
-api.interceptors.request.use((config) => {
+api.interceptors.request.use(config => {
   const authToken = tokenManager.getAuthToken();
   const accessKey = tokenManager.getAccessKey();
 
@@ -25,12 +28,11 @@ api.interceptors.request.use((config) => {
 });
 
 api.interceptors.response.use(
-  (response) => response,
-  (error) => {
+  response => response,
+  error => {
     console.error('Erro na resposta da API:', error);
     return Promise.reject(error);
-  }
+  },
 );
 
 export default api;
-

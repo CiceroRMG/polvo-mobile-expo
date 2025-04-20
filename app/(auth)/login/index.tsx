@@ -1,27 +1,30 @@
-import { useState } from 'react';
-import { View, Text, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Image } from 'expo-image';
-import { useForm, Controller } from 'react-hook-form';
-import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Image } from 'expo-image';
+import { router } from 'expo-router';
+import { useState } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import {
+  View,
+  Text,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from 'react-native';
+import Animated, { FadeInUp } from 'react-native-reanimated';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { z } from 'zod';
+
 import logoBlack from '~/assets/images/logo-black.svg';
 import logoWhite from '~/assets/images/logo-white.svg';
-import { useColorScheme } from '~/lib/useColorScheme';
-import { AppInput } from '~/components/app/AppInput';
 import { AppButton } from '~/components/app/AppButton';
+import { AppInput } from '~/components/app/AppInput';
 import { AppTextButton } from '~/components/app/AppTextButton';
 import { useAuth } from '~/lib/auth/AuthContext';
-import { router } from 'expo-router';
-import Animated, { FadeInUp } from 'react-native-reanimated';
+import { useColorScheme } from '~/lib/useColorScheme';
 
 const loginSchema = z.object({
-  login: z
-    .string()
-    .min(4, 'Informe sua matrícula, email ou ID Udesc'),
-  password: z
-    .string()
-    .min(4, 'A senha deve ter pelo menos 4 caracteres'),
+  login: z.string().min(4, 'Informe sua matrícula, email ou ID Udesc'),
+  password: z.string().min(4, 'A senha deve ter pelo menos 4 caracteres'),
 });
 
 type LoginFormData = z.infer<typeof loginSchema>;
@@ -62,10 +65,13 @@ export default function Login() {
         className="flex-1"
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
       >
-        <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
-          <View className="flex-1 items-center justify-center px-10 gap-10 pb-24">
+        <ScrollView
+          contentContainerStyle={{ flexGrow: 1 }}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View className="flex-1 items-center justify-center gap-10 px-10 pb-24">
             <View className="items-center justify-center gap-2">
-              <View >
+              <View>
                 <Image source={logoSource} style={{ width: 90, height: 90 }} />
               </View>
               <Text className="text-5xl font-bold text-main-logo">Polvo</Text>
@@ -78,7 +84,7 @@ export default function Login() {
                 render={({ field: { onChange, onBlur, value } }) => (
                   <>
                     <AppInput
-                      className="w-full px-6 rounded-2xl text-primary bg-input native:text-base placeholder:text-main-inputText native:h-[60px]"
+                      className="native:text-base native:h-[60px] w-full rounded-2xl bg-input px-6 text-primary placeholder:text-main-inputText"
                       placeholder="Matrícula, email ou ID Udesc"
                       autoCapitalize="none"
                       keyboardType="email-address"
@@ -92,9 +98,11 @@ export default function Login() {
                     />
                     {errors.login && (
                       <Animated.View
-                        entering={FadeInUp.duration(300).withInitialValues({ translateY: -12 })}
+                        entering={FadeInUp.duration(300).withInitialValues({
+                          translateY: -12,
+                        })}
                       >
-                        <Text className="text-red-500 text-sm pl-2">
+                        <Text className="pl-2 text-sm text-red-500">
                           {errors.login.message}
                         </Text>
                       </Animated.View>
@@ -109,7 +117,7 @@ export default function Login() {
                 render={({ field: { onChange, onBlur, value } }) => (
                   <>
                     <AppInput
-                      className="w-full px-6 rounded-2xl text-primary bg-input native:text-base placeholder:text-main-inputText native:h-[60px]"
+                      className="native:text-base native:h-[60px] w-full rounded-2xl bg-input px-6 text-primary placeholder:text-main-inputText"
                       placeholder="Senha"
                       secureTextEntry
                       onBlur={onBlur}
@@ -122,9 +130,11 @@ export default function Login() {
                     />
                     {errors.password && (
                       <Animated.View
-                        entering={FadeInUp.duration(300).withInitialValues({ translateY: -12 })}
+                        entering={FadeInUp.duration(300).withInitialValues({
+                          translateY: -12,
+                        })}
                       >
-                        <Text className="text-red-500 text-sm pl-2 ">
+                        <Text className="pl-2 text-sm text-red-500 ">
                           {errors.password.message}
                         </Text>
                       </Animated.View>
@@ -135,16 +145,18 @@ export default function Login() {
 
               {loginError && (
                 <Animated.View
-                  entering={FadeInUp.duration(300).withInitialValues({ translateY: -12 })}
+                  entering={FadeInUp.duration(300).withInitialValues({
+                    translateY: -12,
+                  })}
                 >
-                  <Text className="text-red-500 text-sm text-center py-1 pl-2">
+                  <Text className="py-1 pl-2 text-center text-sm text-red-500">
                     {loginError}
                   </Text>
                 </Animated.View>
               )}
 
               <AppButton
-                className="w-full px-6 rounded-2xl bg-main-purple justify-center items-center native:h-[60px]"
+                className="native:h-[60px] w-full items-center justify-center rounded-2xl bg-main-purple px-6"
                 onPress={handleSubmit(onSubmit)}
                 disabled={isSubmitting || isFormEmpty}
               >

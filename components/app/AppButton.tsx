@@ -1,5 +1,6 @@
 import React from 'react';
 import { Pressable, PressableProps, Text } from 'react-native';
+
 import { cn } from '~/lib/utils';
 
 interface AppButtonProps extends PressableProps {
@@ -7,23 +8,23 @@ interface AppButtonProps extends PressableProps {
   variant?: 'primary' | 'secondary' | 'outline';
 }
 
-export function AppButton({ 
-  children, 
+export function AppButton({
+  children,
   className = '',
   variant = 'primary',
   disabled = false,
-  ...props 
+  ...props
 }: AppButtonProps) {
   const variantClasses = {
     primary: 'bg-main-purple',
     secondary: 'bg-secondary',
-    outline: 'bg-transparent border-2 border-main-purple'
+    outline: 'bg-transparent border-2 border-main-purple',
   };
 
   const textClasses = {
     primary: 'text-white',
     secondary: 'text-foreground',
-    outline: 'text-main-purple'
+    outline: 'text-main-purple',
   };
 
   return (

@@ -1,24 +1,30 @@
 import '~/global.css';
 
-import { DarkTheme, DefaultTheme, Theme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import { Platform } from 'react-native';
-import { NAV_THEME } from '~/lib/constants';
-import { useColorScheme } from '~/lib/useColorScheme';
-import { PortalHost } from '@rn-primitives/portal';
-import { ThemeToggle } from '~/components/ThemeToggle';
-import { setAndroidNavigationBar } from '~/lib/android-navigation-bar';
 import {
   useFonts,
   Roboto_400Regular,
   Roboto_500Medium,
   Roboto_700Bold,
 } from '@expo-google-fonts/roboto';
-import * as SplashScreen from 'expo-splash-screen';
-import { AuthProvider, useAuth } from '~/lib/auth/AuthContext';
+import {
+  DarkTheme,
+  DefaultTheme,
+  Theme,
+  ThemeProvider,
+} from '@react-navigation/native';
+import { PortalHost } from '@rn-primitives/portal';
+import { Stack } from 'expo-router';
 import { useRouter, useSegments } from 'expo-router';
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import * as SplashScreen from 'expo-splash-screen';
+import { StatusBar } from 'expo-status-bar';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { Platform } from 'react-native';
+
+import { ThemeToggle } from '~/components/ThemeToggle';
+import { setAndroidNavigationBar } from '~/lib/android-navigation-bar';
+import { AuthProvider, useAuth } from '~/lib/auth/AuthContext';
+import { NAV_THEME } from '~/lib/constants';
+import { useColorScheme } from '~/lib/useColorScheme';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -104,7 +110,7 @@ export default function RootLayout() {
           >
             {/* Rotas públicas e protegidas */}
             <Stack.Screen
-              name='index'
+              name="index"
               options={{
                 title: 'Home',
                 headerRight: () => <ThemeToggle />,
@@ -112,14 +118,14 @@ export default function RootLayout() {
               }}
             />
             <Stack.Screen
-              name='(auth)/login/index'
+              name="(auth)/login/index"
               options={{
                 headerShown: false,
                 animation: 'fade',
               }}
             />
             <Stack.Screen
-              name='(auth)/passwordRecovery/index'
+              name="(auth)/passwordRecovery/index"
               options={{
                 headerShown: false,
                 animation: 'slide_from_right',
@@ -134,4 +140,6 @@ export default function RootLayout() {
 }
 
 const useIsomorphicLayoutEffect =
-  Platform.OS === 'web' && typeof window === 'undefined' ? useEffect : useLayoutEffect;
+  Platform.OS === 'web' && typeof window === 'undefined'
+    ? useEffect
+    : useLayoutEffect;

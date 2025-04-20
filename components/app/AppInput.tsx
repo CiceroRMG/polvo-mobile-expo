@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { TextInput, type TextInputProps } from 'react-native';
+
 import { cn } from '~/lib/utils';
 
 interface AppInputProps extends TextInputProps {
@@ -15,7 +16,7 @@ export function AppInput({
   ...props
 }: AppInputProps) {
   const [isFocused, setIsFocused] = React.useState(false);
-  
+
   return (
     <TextInput
       className={cn(
@@ -23,14 +24,14 @@ export function AppInput({
         'placeholder:text-main-inputText native:h-[60px] border border-input',
         isFocused && !disableFocusStyles && 'border-2 border-main-purple',
         props.editable === false && 'opacity-50',
-        className
+        className,
       )}
       placeholderClassName={cn('text-muted-foreground', placeholderClassName)}
-      onFocus={(e) => {
+      onFocus={e => {
         setIsFocused(true);
         onFocus?.(e);
       }}
-      onBlur={(e) => {
+      onBlur={e => {
         setIsFocused(false);
         onBlur?.(e);
       }}
