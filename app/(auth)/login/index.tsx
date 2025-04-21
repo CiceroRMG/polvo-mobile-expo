@@ -52,7 +52,7 @@ export default function Login() {
     setLoginError('');
     const success = await login(data.login, data.password);
     if (success) {
-      router.replace('/');
+      router.replace('/disciplines');
     } else {
       setLoginError('Usuário ou senha inválidos');
     }
@@ -165,8 +165,8 @@ export default function Login() {
             </View>
 
             <AppTextButton
-              className="active:opacity-70"
-              onPress={() => router.push('/(auth)/passwordRecovery')}
+              className="active:opacity-80"
+              onPress={() => router.push('/passwordRecovery')}
             >
               Esqueci minha senha
             </AppTextButton>

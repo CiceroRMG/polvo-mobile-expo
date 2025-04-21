@@ -129,7 +129,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
       tokenManager.clearTokens();
       setUser(null);
-      router.replace('/(auth)/login');
+      router.replace('/login');
     } catch (err) {
       console.error('Erro ao fazer logout:', err);
     } finally {

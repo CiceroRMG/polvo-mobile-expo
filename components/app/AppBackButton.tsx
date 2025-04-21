@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { ArrowLeft } from 'phosphor-react-native';
+import { CaretLeft } from 'phosphor-react-native';
 import React from 'react';
 import { Pressable, PressableProps, Text } from 'react-native';
 
@@ -36,7 +36,7 @@ export const AppBackButton = React.forwardRef<
         ref={ref}
         disabled={disabled}
         className={cn(
-          'flex-row items-center gap-2 mb-8 w-full',
+          'flex-row items-center gap-2 mb-8',
           className,
           disabled && 'opacity-60',
         )}
@@ -45,7 +45,7 @@ export const AppBackButton = React.forwardRef<
         accessibilityLabel={label || 'Voltar'}
         {...props}
       >
-        <ArrowLeft size={iconSize} color={iconColor} />
+        <CaretLeft size={iconSize} color={iconColor} />
         {label ? (
           <Text className={cn('text-base text-foreground', labelClassName)}>
             {label}

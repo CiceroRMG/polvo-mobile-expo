@@ -13,20 +13,21 @@ import {
   ThemeProvider,
 } from '@react-navigation/native';
 import { PortalHost } from '@rn-primitives/portal';
-import { Stack } from 'expo-router';
+import { Slot } from 'expo-router';
 import { useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Platform } from 'react-native';
 
-import { ThemeToggle } from '~/components/ThemeToggle';
 import { setAndroidNavigationBar } from '~/lib/android-navigation-bar';
 import { AuthProvider, useAuth } from '~/lib/auth/AuthContext';
 import { NAV_THEME } from '~/lib/constants';
 import { useColorScheme } from '~/lib/useColorScheme';
 
 SplashScreen.preventAutoHideAsync();
+
+export { ErrorBoundary } from 'expo-router';
 
 const LIGHT_THEME: Theme = {
   ...DefaultTheme,
@@ -36,8 +37,6 @@ const DARK_THEME: Theme = {
   ...DarkTheme,
   colors: NAV_THEME.dark,
 };
-
-export { ErrorBoundary } from 'expo-router';
 
 function AuthenticationWrapper({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
@@ -50,11 +49,11 @@ function AuthenticationWrapper({ children }: { children: React.ReactNode }) {
     const inAuthGroup = segments[0] === '(auth)';
 
     if (!isAuthenticated && !inAuthGroup) {
-      router.replace('/(auth)/login');
+      router.replace('/login');
     } else if (isAuthenticated && inAuthGroup) {
-      router.replace('/');
+      router.replace('/disciplines');
     }
-  }, [isAuthenticated, isLoading, segments]);
+  }, [isAuthenticated, isLoading, segments, router]);
 
   // if (isLoading) return <LoadingScreen />;
 
@@ -102,36 +101,7 @@ export default function RootLayout() {
       <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
         <StatusBar style={isDarkColorScheme ? 'light' : 'dark'} translucent />
         <AuthenticationWrapper>
-          <Stack
-            screenOptions={{
-              headerShown: false,
-              contentStyle: { backgroundColor: 'transparent' },
-            }}
-          >
-            {/* Rotas públicas e protegidas */}
-            <Stack.Screen
-              name="index"
-              options={{
-                title: 'Home',
-                headerRight: () => <ThemeToggle />,
-                headerShown: false,
-              }}
-            />
-            <Stack.Screen
-              name="(auth)/login/index"
-              options={{
-                headerShown: false,
-                animation: 'fade',
-              }}
-            />
-            <Stack.Screen
-              name="(auth)/passwordRecovery/index"
-              options={{
-                headerShown: false,
-                animation: 'slide_from_right',
-              }}
-            />
-          </Stack>
+          <Slot />
         </AuthenticationWrapper>
         <PortalHost />
       </ThemeProvider>

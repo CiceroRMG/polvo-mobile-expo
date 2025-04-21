@@ -6,11 +6,12 @@ interface UsePasswordRecoveryCooldownOptions {
   storageKey?: string;
 }
 
-export function usePasswordRecoveryCooldown({
+export default function usePasswordRecoveryCooldown({
   cooldownSeconds = 60,
   storageKey = 'passwordRecoveryCooldown',
 }: UsePasswordRecoveryCooldownOptions = {}) {
   const [cooldown, setCooldown] = useState(0);
+  // eslint-disable-next-line no-undef
   const cooldownRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {

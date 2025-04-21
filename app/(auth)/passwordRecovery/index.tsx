@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { Text, View, ActivityIndicator } from 'react-native';
 import Animated, { FadeInUp } from 'react-native-reanimated';
@@ -16,7 +16,7 @@ import { AppModal } from '~/components/app/AppModal';
 import { AppTextButton } from '~/components/app/AppTextButton';
 import api from '~/lib/api';
 
-import { usePasswordRecoveryCooldown } from './(hooks)/usePasswordRecoveryCooldown';
+import usePasswordRecoveryCooldown from './(hooks)/usePasswordRecoveryCooldown';
 
 const passwordRecoverySchema = z.object({
   email: z
@@ -59,6 +59,7 @@ export default function PasswordRecovery() {
       setModalVisible(true);
       await startCooldown();
     } catch (error) {
+      alert('Erro desconhecido. Tente novamente mais tarde.' + error);
     } finally {
       setIsLoading(false);
     }

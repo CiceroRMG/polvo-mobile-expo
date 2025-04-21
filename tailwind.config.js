@@ -45,6 +45,7 @@ module.exports = {
           purple: 'var(--purple-primary)',
           logo: 'var(--logo)',
           inputText: 'var(--input-text)',
+          card: 'var(--card-app)',
         },
       },
       borderWidth: {

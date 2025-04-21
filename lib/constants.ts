@@ -8,7 +8,7 @@ export const NAV_THEME = {
     text: '#09090B', // foreground
   },
   dark: {
-    background: '#373738', // background
+    background: '#292E32', // background
     border: '#27272A', // border
     card: '#373738', // card
     notification: '#DC2828', // destructive
