@@ -27,6 +27,8 @@
     --logo: #334155;
     --input-text: #797979;
     --card-app: #f8f9fe;
+    --text-purple: #4338ca;
+    --border-color: #d4d6dd;
   }
 
   .dark:root {
@@ -53,5 +55,7 @@
     --logo: #eef2ff;
     --input-text: #bbbbbb;
     --card-app: #32393e;
+    --text-purple: #4338ca;
+    --border-color: #d4d6dd;
   }
 }

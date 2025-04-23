@@ -6,6 +6,7 @@ import { Text, View, ScrollView, Pressable } from 'react-native';
 
 import logoBlack from '~/assets/images/logo-black.svg';
 import logoWhite from '~/assets/images/logo-white.svg';
+import { AppModal } from '~/components/app/AppModal';
 import { useAuth } from '~/lib/auth/AuthContext';
 import { useColorScheme } from '~/lib/useColorScheme';
 
@@ -16,7 +17,14 @@ export default function Settings() {
   const arrowIconColorLogout = colorScheme === 'dark' ? '#dc2828' : '#ef4444';
   const arrowIconColor = colorScheme === 'dark' ? '#fafafa' : '#797979';
 
+  const [modalVisible, setModalVisible] = React.useState(false);
+
   const handleLogout = () => {
+    setModalVisible(true);
+  };
+
+  const confirmLogout = () => {
+    setModalVisible(false);
     logout();
   };
 
@@ -80,6 +88,15 @@ export default function Settings() {
           </Pressable>
         </View>
       </View>
+      <AppModal
+        visible={modalVisible}
+        title="Sair da conta"
+        message="Tem certeza que deseja sair da sua conta?"
+        onClose={() => setModalVisible(false)}
+        onPress={confirmLogout}
+        confirmText="Sair"
+        showCloseButton={true}
+      />
     </ScrollView>
   );
 }

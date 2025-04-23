@@ -1,4 +1,5 @@
 import { Tabs } from 'expo-router';
+import { useSegments } from 'expo-router';
 import { Books, GoogleDriveLogo, Envelope, Gear } from 'phosphor-react-native';
 import React from 'react';
 import { TouchableOpacity } from 'react-native';
@@ -18,15 +19,18 @@ export default function TabsLayout() {
     paddingTop: 10,
     shadowColor: 'transparent',
   };
+
+  // Detecta se está em uma tela de execução de quiz
+  const segments = useSegments();
+  const hideTabBar = segments.includes('execute' as never);
+
   return (
     <SafeAreaView className="flex-1 bg-background pt-8">
       <Tabs
         screenOptions={{
           headerShown: false,
           animation: 'shift',
-          tabBarStyle: {
-            ...tabBarStyle,
-          },
+          tabBarStyle: hideTabBar ? { display: 'none' } : { ...tabBarStyle },
           tabBarShowLabel: false,
           tabBarLabelStyle: {
             display: 'none',

@@ -17,7 +17,7 @@ export function AppButton({
 }: AppButtonProps) {
   const variantClasses = {
     primary: 'bg-main-purple',
-    secondary: 'bg-secondary',
+    secondary: 'bg-main-borderColor',
     outline: 'bg-transparent border-2 border-main-purple',
   };
 
@@ -35,7 +35,7 @@ export function AppButton({
         'active:opacity-80',
         variantClasses[variant],
         className,
-        disabled && 'opacity-70 bg-main-purple',
+        disabled && 'opacity-70',
       )}
       {...props}
     >
