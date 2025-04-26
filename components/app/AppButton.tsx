@@ -22,8 +22,8 @@ export function AppButton({
   };
 
   const textClasses = {
-    primary: 'text-white',
-    secondary: 'text-foreground',
+    primary: 'text-primary',
+    secondary: 'text-gray-800',
     outline: 'text-main-purple',
   };
 

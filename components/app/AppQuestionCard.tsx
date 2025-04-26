@@ -32,7 +32,7 @@ export function AppQuestionCard({
         <View className="my-2 h-2 w-full border-t border-main-borderColor" />
 
         {questionText ? (
-          <Text className="text-main-primary text-center text-base">
+          <Text className="text-center text-base text-primary">
             {questionText}
           </Text>
         ) : null}

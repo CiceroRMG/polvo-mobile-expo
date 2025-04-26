@@ -27,9 +27,7 @@ export function AppAnswerCard({
       )}
       android_ripple={{ color: 'rgba(99, 101, 242, 0.07)', borderless: false }}
     >
-      <Text className="text-main-primary mr-2 flex-1 text-base">
-        {children}
-      </Text>
+      <Text className="mr-2 flex-1 text-base text-primary">{children}</Text>
 
       <View
         className={cn(

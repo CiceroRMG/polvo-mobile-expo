@@ -84,7 +84,7 @@ export default function QuizExecuteScreen() {
   };
 
   return (
-    <View className="flex-1 bg-white dark:bg-black">
+    <View className="flex-1 bg-background">
       <AppBackButton onPress={() => setShowExitModal(true)} className="ml-4" />
       <AppModal
         visible={showExitModal}
@@ -101,12 +101,12 @@ export default function QuizExecuteScreen() {
       <View className="mb-12 w-full flex-row items-center justify-between px-6">
         <View className="flex-row items-center gap-3">
           <Brain size={26} color="#4338CA" />
-          <Text className=" text-lg font-bold">
+          <Text className=" text-lg font-bold text-primary">
             {`${current + 1} de ${mockQuestions.length}`}
           </Text>
         </View>
         <View className="flex-row items-center gap-3">
-          <Text className=" text-lg font-bold">{`Tempo restante`}</Text>
+          <Text className=" text-lg font-bold text-primary">{`Tempo restante`}</Text>
           <Alarm size={24} color="#4338CA" />
         </View>
       </View>
@@ -131,7 +131,7 @@ export default function QuizExecuteScreen() {
                 key={item}
                 selected={answers[question.id] === item}
                 onPress={() => handleAnswer(item)}
-                className="mb-2"
+                className="mb-6"
               >
                 {item}
               </AppAnswerCard>
