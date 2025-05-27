@@ -50,10 +50,11 @@ Polvo App é uma aplicação mobile desenvolvida com React Native e Expo para in
    ```bash
    cp .env.example .env
    ```
-4. Configure a variável `EXPO_PUBLIC_API_URL` no arquivo `.env` com a URL do backend
+4. Configure a variável `EXPO_PUBLIC_API_BASE_URL` e `EXPO_PUBLIC_API_PREFIX` no arquivo `.env` com a URL do backend
 
    ```env
-   EXPO_PUBLIC_API_URL="http://{SEU-IPV4}:{PORTA-DA-APLICAÇÃO}/"
+   EXPO_PUBLIC_API_BASE_URL="http://192.168.0.99:3333"
+   EXPO_PUBLIC_API_PREFIX="/api/"
    ```
 
 ### Executando o Projeto
