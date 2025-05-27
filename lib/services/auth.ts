@@ -1,14 +1,14 @@
 import api from '../api';
 
 interface LoginProps {
-  email: string;
+  login: string;
   password: string;
 }
 
 export const authService = {
   async login(data: LoginProps) {
     try {
-      const response = await api.post('/auth/login', data);
+      const response = await api.post('/api/login/hoken', data);
       return response.data;
     } catch (error) {
       console.error('Erro ao fazer login:', error);
