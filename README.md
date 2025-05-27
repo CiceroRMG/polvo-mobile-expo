@@ -36,7 +36,8 @@ Polvo App é uma aplicação mobile desenvolvida com React Native e Expo para in
 - [Node.js](https://nodejs.org/en/) (recomendado v18 ou superior)
 - [NPM](https://www.npmjs.com/)
 - [Expo CLI](https://docs.expo.dev/get-started/installation/)
-- Aplicativo Expo Go instalado no seu dispositivo móvel (iOS ou Android) ou um emulador
+- Aplicativo Expo Go **COM O SDK 52** instalado no seu dispositivo móvel (iOS ou Android) ou um emulador
+- Caso esteja utilizando algum ambiente linux, tenha um navegador baseado em chromium no PATH do sistema.
 
 ### Configuração do Ambiente
 
@@ -51,20 +52,24 @@ Polvo App é uma aplicação mobile desenvolvida com React Native e Expo para in
    ```
 4. Configure a variável `EXPO_PUBLIC_API_URL` no arquivo `.env` com a URL do backend
 
+   ```env
+   EXPO_PUBLIC_API_URL="http://{SEU-IPV4}:{PORTA-DA-APLICAÇÃO}/"
+   ```
+
 ### Executando o Projeto
 
 ```bash
 # Iniciar o projeto em modo de desenvolvimento
-npm dev
+npm run dev
 
 # Executar diretamente no Android
-npm dev:android
+npm run dev:android
 
 # Executar diretamente no iOS
-npm ios
+npm run ios
 
 # Executar na web
-npm dev:web
+npm run dev:web
 ```
 
 Após iniciar o projeto, escaneie o QR code com o aplicativo Expo Go no seu dispositivo móvel ou use um emulador para visualizar a aplicação.
