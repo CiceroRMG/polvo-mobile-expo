@@ -1,5 +1,6 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useState, useEffect, useRef } from 'react';
+
+import { storageService } from '~/lib/services/storage';
 
 interface UsePasswordRecoveryCooldownOptions {
   cooldownSeconds?: number;
@@ -11,41 +12,69 @@ export default function usePasswordRecoveryCooldown({
   storageKey = 'passwordRecoveryCooldown',
 }: UsePasswordRecoveryCooldownOptions = {}) {
   const [cooldown, setCooldown] = useState(0);
-  // eslint-disable-next-line no-undef
-  const cooldownRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Load any existing cooldown from storage when component mounts
   useEffect(() => {
-    (async () => {
-      const lastSent = await AsyncStorage.getItem(storageKey);
-      if (lastSent) {
-        const lastSentDate = new Date(parseInt(lastSent, 10));
-        const now = new Date();
-        const diff = Math.floor(
-          (now.getTime() - lastSentDate.getTime()) / 1000,
+    const loadExistingCooldown = async () => {
+      try {
+        const lastSentTimestamp = await storageService.getItem(storageKey);
+        if (!lastSentTimestamp) return;
+
+        const elapsedSeconds = getElapsedSeconds(
+          parseInt(lastSentTimestamp, 10),
         );
-        if (diff < cooldownSeconds) setCooldown(cooldownSeconds - diff);
+        const remainingCooldown = Math.max(0, cooldownSeconds - elapsedSeconds);
+
+        if (remainingCooldown > 0) {
+          setCooldown(remainingCooldown);
+        }
+      } catch (error) {
+        console.error('Failed to load cooldown state:', error);
       }
-    })();
-    return () => {
-      if (cooldownRef.current) clearTimeout(cooldownRef.current);
     };
+
+    loadExistingCooldown();
+
+    // Cleanup timer on unmount
+    return () => clearTimerIfExists();
   }, [cooldownSeconds, storageKey]);
 
+  // Handle the countdown timer
   useEffect(() => {
-    if (cooldown > 0) {
-      cooldownRef.current = setTimeout(() => setCooldown(c => c - 1), 1000);
-    } else if (cooldownRef.current) {
-      clearTimeout(cooldownRef.current);
-      cooldownRef.current = null;
+    if (cooldown <= 0) {
+      clearTimerIfExists();
+      return;
     }
-    return () => {
-      if (cooldownRef.current) clearTimeout(cooldownRef.current);
-    };
+
+    // Set up a 1-second interval timer
+    timerRef.current = setTimeout(() => {
+      setCooldown(current => current - 1);
+    }, 1000);
+
+    // Cleanup timer if component unmounts during countdown
+    return () => clearTimerIfExists();
   }, [cooldown]);
 
+  // Helper function to calculate elapsed seconds
+  const getElapsedSeconds = (timestamp: number): number => {
+    const now = Date.now();
+    return Math.floor((now - timestamp) / 1000);
+  };
+
+  // Helper to safely clear the timer
+  const clearTimerIfExists = () => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+  };
+
+  // Start a new cooldown period
   const startCooldown = async () => {
+    const now = Date.now();
     setCooldown(cooldownSeconds);
-    await AsyncStorage.setItem(storageKey, Date.now().toString());
+    await storageService.setItem(storageKey, now.toString());
   };
 
   return { cooldown, startCooldown };
