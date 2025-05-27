@@ -15,4 +15,17 @@ export const authService = {
       throw error;
     }
   },
+
+  async sendPasswordResetEmail(email: string) {
+    try {
+      const response = await api.post('/user/resetPassword/token', {
+        email,
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error('Erro ao enviar e-mail de recuperação de senha:', error);
+      throw error;
+    }
+  },
 };
