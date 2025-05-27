@@ -1,6 +1,4 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
-import * as SecureStore from 'expo-secure-store';
 import React, {
   createContext,
   useContext,
@@ -9,16 +7,10 @@ import React, {
   useCallback,
 } from 'react';
 
-import api from '../api';
+import { authService } from '../services/auth';
+import { storageService } from '../services/storage';
 
-import { tokenManager } from './tokenManager';
-
-export const STORAGE_KEYS = {
-  USER_DATA: '@polvo-app:user-data',
-  AUTH_TOKEN: 'polvoappauthkey',
-  ACCESS_KEY: 'polvoappaccesskey',
-};
-
+// Keep your User interface definition
 export interface User {
   _id: string;
   id: string;
@@ -62,55 +54,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
-  // Carrega dados do usuário ao iniciar
+  // Initialize user data from storage
   useEffect(() => {
-    (async () => {
+    const initializeAuth = async () => {
       try {
-        const raw = await AsyncStorage.getItem(STORAGE_KEYS.USER_DATA);
-        const token = await SecureStore.getItemAsync(STORAGE_KEYS.AUTH_TOKEN);
-        const access = await SecureStore.getItemAsync(STORAGE_KEYS.ACCESS_KEY);
+        const storedUser = await storageService.getUser();
+        const { authToken, accessKey } = await storageService.getTokens();
 
-        if (raw && token && access) {
-          const storedUser: User = JSON.parse(raw);
+        if (storedUser && authToken && accessKey) {
           setUser(storedUser);
-
-          tokenManager.setAuthToken(token);
-          tokenManager.setAccessKey(access);
         }
       } catch (err) {
         console.error('Erro ao carregar dados do usuário', err);
       } finally {
         setIsLoading(false);
       }
-    })();
+    };
+
+    initializeAuth();
   }, []);
 
   const login = useCallback(async (login: string, password: string) => {
     setIsLoading(true);
     try {
-      const { data } = await api.post(`/api/login/hoken`, { login, password });
-      if (data.success && data.data) {
-        const userData: User = data.data;
+      const result = await authService.login({ login, password });
 
-        await AsyncStorage.setItem(
-          STORAGE_KEYS.USER_DATA,
-          JSON.stringify(userData),
-        );
-        await SecureStore.setItemAsync(
-          STORAGE_KEYS.AUTH_TOKEN,
-          userData.authenticationKey,
-        );
-        await SecureStore.setItemAsync(
-          STORAGE_KEYS.ACCESS_KEY,
-          userData.accessKey,
-        );
-
-        tokenManager.setAuthToken(userData.authenticationKey);
-        tokenManager.setAccessKey(userData.accessKey);
-
+      if (result.success && result.data) {
+        const userData: User = result.data;
+        await storageService.saveUser(userData);
         setUser(userData);
         return true;
       }
+
       return false;
     } catch (err) {
       console.error('Erro ao fazer login:', err);
@@ -123,11 +98,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const logout = useCallback(async () => {
     setIsLoading(true);
     try {
-      await AsyncStorage.removeItem(STORAGE_KEYS.USER_DATA);
-      await SecureStore.deleteItemAsync(STORAGE_KEYS.AUTH_TOKEN);
-      await SecureStore.deleteItemAsync(STORAGE_KEYS.ACCESS_KEY);
-
-      tokenManager.clearTokens();
+      await storageService.clearStorage();
       setUser(null);
       router.replace('/login');
     } catch (err) {
