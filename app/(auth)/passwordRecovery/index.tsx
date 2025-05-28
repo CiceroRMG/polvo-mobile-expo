@@ -14,7 +14,7 @@ import { AppButton } from '~/components/app/AppButton';
 import { AppInput } from '~/components/app/AppInput';
 import { AppModal } from '~/components/app/AppModal';
 import { AppTextButton } from '~/components/app/AppTextButton';
-import api from '~/lib/api';
+import { authService } from '~/lib/services/auth';
 
 import usePasswordRecoveryCooldown from './(hooks)/usePasswordRecoveryCooldown';
 
@@ -47,19 +47,20 @@ export default function PasswordRecovery() {
   const onSubmit = async (data: PasswordRecoveryForm) => {
     setIsLoading(true);
     try {
-      const response = await api.post('/api/user/resetPassword/token', {
-        email: data.email,
-      });
-      if (!response.data) {
+      const response = await authService.sendPasswordResetEmail(data.email);
+
+      if (!response) {
         alert(
           'Erro ao enviar o e-mail de recuperação. Tente novamente mais tarde.',
         );
         return;
       }
+
       setModalVisible(true);
       await startCooldown();
     } catch (error) {
-      alert('Erro desconhecido. Tente novamente mais tarde.' + error);
+      alert('Erro desconhecido. Tente novamente mais tarde.');
+      console.error(error);
     } finally {
       setIsLoading(false);
     }

@@ -2,16 +2,17 @@ import axios from 'axios';
 
 import { tokenManager } from './auth/tokenManager';
 
-export const API_URL = process.env.EXPO_PUBLIC_API_URL;
+export const BASE_API_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
+export const API_PREFIX = process.env.EXPO_PUBLIC_API_PREFIX;
 
-if (!API_URL) {
+if (!BASE_API_URL || !API_PREFIX) {
   throw new Error(
-    'API_URL is not defined. Please set it in your environment variables.',
+    'BASE_API_URL or API_PREFIX is not defined. Please set it in your environment variables.',
   );
 }
 
 const api = axios.create({
-  baseURL: API_URL,
+  baseURL: BASE_API_URL + API_PREFIX,
   headers: {
     'Content-Type': 'application/json',
   },
