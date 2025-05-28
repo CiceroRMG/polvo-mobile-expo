@@ -15,4 +15,11 @@ export const tokenManager = {
     authToken = null;
     accessKey = null;
   },
+  isAuthenticated: () => !!authToken && !!accessKey,
+  getAuthencationHeaders: () => {
+    return {
+      'access-key': accessKey,
+      'authentication-key': authToken,
+    };
+  },
 };
