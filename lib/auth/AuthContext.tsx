@@ -10,6 +10,8 @@ import React, {
 import { authService } from '../services/auth';
 import { storageService } from '../services/storage';
 
+import { tokenManager } from './tokenManager';
+
 // Keep your User interface definition
 export interface User {
   _id: string;
@@ -62,10 +64,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         const { authToken, accessKey } = await storageService.getTokens();
 
         if (storedUser && authToken && accessKey) {
+          await tokenManager.setAuthToken(authToken);
+          await tokenManager.setAccessKey(accessKey);
+          console.log('Tokens loaded into token manager:', {
+            authToken,
+            accessKey,
+          });
+
           setUser(storedUser);
         }
       } catch (err) {
-        console.error('Erro ao carregar dados do usuário', err);
+        console.error('Error loading user data:', err);
       } finally {
         setIsLoading(false);
       }
