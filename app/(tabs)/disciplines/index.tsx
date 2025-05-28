@@ -1,22 +1,62 @@
 import { router } from 'expo-router';
 import { CaretRight } from 'phosphor-react-native';
 import * as React from 'react';
-import { Text, View, FlatList, Pressable } from 'react-native';
+import { useEffect, useState } from 'react';
+import {
+  Text,
+  View,
+  FlatList,
+  Pressable,
+  ActivityIndicator,
+} from 'react-native';
 
 import { AppCard } from '~/components/app/AppCard';
+import { userService } from '~/lib/services/user';
 
-const mockDisciplines = [
-  { id: '1', title: 'Disciplina 1', subtitle: '#AWD32' },
-  { id: '2', title: 'Disciplina 2', subtitle: '#BGT54' },
-  { id: '3', title: 'Disciplina 3', subtitle: '#QWE12' },
-  { id: '4', title: 'Disciplina 4', subtitle: '#ZXCV9' },
-];
+interface Subjects {
+  id: string;
+  title: string;
+  subtitle?: string;
+}
 
 const handleDisciplinePress = (disciplineId: string) => {
   router.push(`/disciplines/${disciplineId}`);
 };
 
 export default function Disciplines() {
+  const [entities, setEntities] = useState<Subjects[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchSubjects = async () => {
+      try {
+        setIsLoading(true);
+        const response = await userService.getUserEnrolledSubjects();
+
+        if (Array.isArray(response)) {
+          const formattedEntities: Subjects[] = response.map(entity => ({
+            id: entity.id || entity.id,
+            title: entity.title || '',
+            subtitle: entity.testCount + ' atividades ativas',
+          }));
+
+          setEntities(formattedEntities);
+        } else {
+          console.error('Unexpected response format:', response);
+          setError('Formato de resposta inválido.');
+        }
+      } catch (err) {
+        console.error('Failed to fetch entities:', err);
+        setError('Falha ao carregar as disciplinas tente novamente.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchSubjects();
+  }, []);
+
   return (
     <View className="flex-1 bg-background">
       <View className="flex-1 px-6">
@@ -27,22 +67,33 @@ export default function Disciplines() {
           Ativas
         </Text>
 
-        <FlatList
-          data={mockDisciplines}
-          keyExtractor={item => item.id}
-          renderItem={({ item }) => (
-            <AppCard
-              title={item.title}
-              subtitle={item.subtitle}
-              onPress={() => handleDisciplinePress(item.id)}
-            />
-          )}
-          contentContainerStyle={{
-            paddingBottom: 24,
-            gap: 14,
-          }}
-          showsVerticalScrollIndicator={false}
-        />
+        {isLoading ? (
+          <ActivityIndicator size="large" color="#6200ee" />
+        ) : error ? (
+          <Text className="text-red-500 text-center my-4">{error}</Text>
+        ) : (
+          <FlatList
+            data={entities}
+            keyExtractor={item => item.id}
+            renderItem={({ item }) => (
+              <AppCard
+                title={item.title}
+                subtitle={item.subtitle}
+                onPress={() => handleDisciplinePress(item.id)}
+              />
+            )}
+            contentContainerStyle={{
+              paddingBottom: 24,
+              gap: 14,
+            }}
+            ListEmptyComponent={
+              <Text className="text-center text-gray-500 my-4">
+                No active disciplines found.
+              </Text>
+            }
+            showsVerticalScrollIndicator={false}
+          />
+        )}
 
         <View className="mb-8 mt-8 items-end justify-end px-2">
           <Pressable
