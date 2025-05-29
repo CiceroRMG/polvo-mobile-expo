@@ -64,7 +64,7 @@ interface UserSubjectsResponse {
 }
 
 export const userService = {
-  async getUserEnrolledSubjects() {
+  async getUserEnrolledSubjects(): Promise<EntityDataItem[]> {
     try {
       const response: AxiosResponse<UserSubjectsResponse> = await api.get(
         'user/entitiesWithTests',
@@ -78,5 +78,8 @@ export const userService = {
       console.error('Error fetching user entities:', error);
       throw error;
     }
+  },
+  async getSubjectDataById(subjectId: string) {
+    console.log(subjectId);
   },
 };
