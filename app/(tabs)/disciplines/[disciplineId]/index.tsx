@@ -23,7 +23,7 @@ export default function DisciplineDetail() {
   const [isLoading, setIsLoading] = useState(true);
   const [subjectTests, setSubjectTests] = useState<DisciplineProps[]>([]);
 
-  const { disciplineId } = useLocalSearchParams();
+  const { disciplineId, disciplineTitle } = useLocalSearchParams();
 
   const handleQuizzPress = (quizzId: string) => {
     router.push(`/disciplines/${disciplineId}/${quizzId}`);
@@ -68,7 +68,7 @@ export default function DisciplineDetail() {
       <View className="w-full flex-1 px-6">
         <View className="flex-row items-center gap-3">
           <AppBackButton
-            label={`Id da disciplina: ${disciplineId}`}
+            label={`${disciplineTitle}`}
             labelClassName="text-3xl font-bold text-primary ml-2"
           />
         </View>

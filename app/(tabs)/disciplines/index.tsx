@@ -19,8 +19,14 @@ interface Subjects {
   subtitle?: string;
 }
 
-const handleDisciplinePress = (disciplineId: string) => {
-  router.push(`/disciplines/${disciplineId}`);
+const handleDisciplinePress = (
+  disciplineId: string,
+  disciplineTitle: string,
+) => {
+  router.push({
+    pathname: '/disciplines/[disciplineId]',
+    params: { disciplineId, disciplineTitle },
+  });
 };
 
 export default function Disciplines() {
@@ -79,7 +85,7 @@ export default function Disciplines() {
               <AppCard
                 title={item.title}
                 subtitle={item.subtitle}
-                onPress={() => handleDisciplinePress(item.id)}
+                onPress={() => handleDisciplinePress(item.id, item.title)}
               />
             )}
             contentContainerStyle={{
