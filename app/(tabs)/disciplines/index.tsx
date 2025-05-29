@@ -70,7 +70,7 @@ export default function Disciplines() {
         {isLoading ? (
           <ActivityIndicator size="large" color="#6200ee" />
         ) : error ? (
-          <Text className="text-red-500 text-center my-4">{error}</Text>
+          <Text className="my-4 text-center text-red-500">{error}</Text>
         ) : (
           <FlatList
             data={entities}
@@ -87,7 +87,7 @@ export default function Disciplines() {
               gap: 14,
             }}
             ListEmptyComponent={
-              <Text className="text-center text-gray-500 my-4">
+              <Text className="my-4 text-center text-gray-500">
                 No active disciplines found.
               </Text>
             }
