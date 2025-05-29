@@ -38,7 +38,7 @@ export default function Disciplines() {
           const formattedEntities: Subjects[] = response.map(entity => ({
             id: entity.id || entity.id,
             title: entity.title || '',
-            subtitle: entity.testCount + ' atividades ativas',
+            subtitle: entity.testCount + ' provas ativas',
           }));
 
           setEntities(formattedEntities);
