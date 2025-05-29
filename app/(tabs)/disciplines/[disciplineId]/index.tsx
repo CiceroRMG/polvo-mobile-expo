@@ -5,19 +5,23 @@ import { Text, View, FlatList, ActivityIndicator } from 'react-native';
 
 import { AppBackButton } from '~/components/app/AppBackButton';
 import { AppCard } from '~/components/app/AppCard';
+import { storageService } from '~/lib/services/storage';
 import { userService } from '~/lib/services/user';
 
-const mockDisciplines = [
-  { id: '1', title: 'Quiz 1' },
-  { id: '2', title: 'Quiz 2' },
-  { id: '3', title: 'Quiz 3' },
-  { id: '4', title: 'Quiz 4' },
-];
+interface DisciplineProps {
+  id: string;
+  title: string;
+  subtitle?: string;
+}
 
 export default function DisciplineDetail() {
+  // WE SHOULD GOT THIS FROM SOMEWHERE IN THE BACK-END THAT I DON'T KNOW YET -> ActionId
+  const idOfThePermissionToSeeTests =
+    process.env.EXPO_PUBLIC_API_SEE_TESTS_PERMISSION ?? '';
+
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [subjectTests, setSubjectTests] = useState([]);
+  const [subjectTests, setSubjectTests] = useState<DisciplineProps[]>([]);
 
   const { disciplineId } = useLocalSearchParams();
 
@@ -29,7 +33,25 @@ export default function DisciplineDetail() {
     const fetchSubjectTests = async () => {
       try {
         setIsLoading(true);
-        userService.getSubjectDataById(disciplineId as string);
+        const userId = (await storageService.getUser())?._id;
+
+        if (!userId) {
+          throw new Error('User ID not found');
+        }
+
+        const tests = await userService.getSubjectData(
+          disciplineId as string,
+          idOfThePermissionToSeeTests,
+          userId,
+        );
+
+        const formattedTests: DisciplineProps[] = tests.map(test => ({
+          id: test.id,
+          title: test.title,
+          subtitle: test.instructions ?? '{{ Sem instruções disponíveis }}',
+        }));
+        setSubjectTests(formattedTests);
+        setError(null);
       } catch (error) {
         console.error('Failed to fetch subject tests:', error);
         setError('Falha ao carregar suas provas tente novamente.');
@@ -58,10 +80,10 @@ export default function DisciplineDetail() {
         {isLoading ? (
           <ActivityIndicator size="large" color="#6200ee" />
         ) : error ? (
-          <Text className="text-red-500 text-center my-4">{error}</Text>
+          <Text className="my-4 text-center text-red-500">{error}</Text>
         ) : (
           <FlatList
-            data={mockDisciplines}
+            data={subjectTests}
             keyExtractor={item => item.id}
             renderItem={({ item }) => (
               <AppCard
@@ -75,7 +97,7 @@ export default function DisciplineDetail() {
               gap: 14,
             }}
             ListEmptyComponent={
-              <Text className="text-center text-gray-500 my-4">
+              <Text className="my-4 text-center text-gray-500">
                 Não há atividades disponíveis para esta disciplina.
               </Text>
             }
