@@ -66,10 +66,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         if (storedUser && authToken && accessKey) {
           await tokenManager.setAuthToken(authToken);
           await tokenManager.setAccessKey(accessKey);
-          console.log('Tokens loaded into token manager:', {
-            authToken,
-            accessKey,
-          });
 
           setUser(storedUser);
         }

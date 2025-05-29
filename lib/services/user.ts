@@ -24,8 +24,8 @@ interface TestItem {
   students: Student[];
   hasTeacherStartedTestEarly: boolean;
   instructions: string;
-  initialDate: string; // Or Date if you plan to parse it immediately
-  endDate: string; // Or Date if you plan to parse it immediately
+  initialDate: string;
+  endDate: string;
   title: string;
   entityId: EntityId;
   id: string;
@@ -53,7 +53,7 @@ interface EntityDataItem {
   id: string;
   title: string;
   testCount: number;
-  tests: TestItem[];
+  tests: TestItem[]; // Mantém TestItem aqui, pois é o que getUserEnrolledSubjects retorna
   privileges: EntityPrivileges;
 }
 
@@ -63,8 +63,18 @@ interface UserSubjectsResponse {
   data: EntityDataItem[];
 }
 
+// Novos tipos adicionados
+interface SubjectTestDetails extends TestItem {
+  status: string;
+}
+
+interface SubjectDataResponse {
+  success: boolean;
+  data: SubjectTestDetails[];
+}
+
 export const userService = {
-  async getUserEnrolledSubjects() {
+  async getUserEnrolledSubjects(): Promise<EntityDataItem[]> {
     try {
       const response: AxiosResponse<UserSubjectsResponse> = await api.get(
         'user/entitiesWithTests',
@@ -76,6 +86,24 @@ export const userService = {
       return response.data.data;
     } catch (error) {
       console.error('Error fetching user entities:', error);
+      throw error;
+    }
+  },
+  async getSubjectData(
+    entityId: string,
+    actionId: string,
+    studentId: string,
+  ): Promise<SubjectTestDetails[]> {
+    try {
+      const response: AxiosResponse<SubjectDataResponse> = await api.post(
+        `ehq/${entityId}/${actionId}/studentTestEnter`,
+        { entityId, studentId },
+        { headers: tokenManager.getAuthencationHeaders() },
+      );
+
+      return response.data.data;
+    } catch (error) {
+      console.error('Error fetching subject data by ID:', error);
       throw error;
     }
   },

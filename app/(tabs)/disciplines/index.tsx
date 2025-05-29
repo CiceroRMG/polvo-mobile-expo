@@ -19,8 +19,14 @@ interface Subjects {
   subtitle?: string;
 }
 
-const handleDisciplinePress = (disciplineId: string) => {
-  router.push(`/disciplines/${disciplineId}`);
+const handleDisciplinePress = (
+  disciplineId: string,
+  disciplineTitle: string,
+) => {
+  router.push({
+    pathname: '/disciplines/[disciplineId]',
+    params: { disciplineId, disciplineTitle },
+  });
 };
 
 export default function Disciplines() {
@@ -38,7 +44,7 @@ export default function Disciplines() {
           const formattedEntities: Subjects[] = response.map(entity => ({
             id: entity.id || entity.id,
             title: entity.title || '',
-            subtitle: entity.testCount + ' atividades ativas',
+            subtitle: entity.testCount + ' provas ativas',
           }));
 
           setEntities(formattedEntities);
@@ -70,7 +76,7 @@ export default function Disciplines() {
         {isLoading ? (
           <ActivityIndicator size="large" color="#6200ee" />
         ) : error ? (
-          <Text className="text-red-500 text-center my-4">{error}</Text>
+          <Text className="my-4 text-center text-red-500">{error}</Text>
         ) : (
           <FlatList
             data={entities}
@@ -79,7 +85,7 @@ export default function Disciplines() {
               <AppCard
                 title={item.title}
                 subtitle={item.subtitle}
-                onPress={() => handleDisciplinePress(item.id)}
+                onPress={() => handleDisciplinePress(item.id, item.title)}
               />
             )}
             contentContainerStyle={{
@@ -87,7 +93,7 @@ export default function Disciplines() {
               gap: 14,
             }}
             ListEmptyComponent={
-              <Text className="text-center text-gray-500 my-4">
+              <Text className="my-4 text-center text-gray-500">
                 No active disciplines found.
               </Text>
             }
