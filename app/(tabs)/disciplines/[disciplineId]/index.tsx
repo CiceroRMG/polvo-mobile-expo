@@ -1,4 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router';
+import { Warning } from 'phosphor-react-native';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { Text, View, FlatList, ActivityIndicator } from 'react-native';
@@ -14,6 +15,7 @@ interface DisciplineProps {
   startDate: string;
   endDate: string;
   subtitle?: string;
+  endingSoon?: boolean;
 }
 
 export default function DisciplineDetail() {
@@ -27,13 +29,31 @@ export default function DisciplineDetail() {
 
   const { disciplineId, disciplineTitle } = useLocalSearchParams();
 
-  const handleQuizzPress = (quizzId: string, quizzTitle: string) => {
+  const isEndingSoon = (endDate: string): boolean => {
+    const now = new Date();
+    const end = new Date(endDate);
+    const diffMs = end.getTime() - now.getTime();
+    const diffHours = diffMs / (1000 * 60 * 60);
+
+    return diffHours > 0 && diffHours < 1;
+  };
+
+  const handleQuizzPress = (
+    quizzId: string,
+    quizzTitle: string,
+    quizzSubtitle: string,
+    quizzStartDate: string,
+    quizzEndDate: string,
+  ) => {
     router.push({
       pathname: '/disciplines/[disciplineId]/[quizId]',
       params: {
         disciplineId: disciplineId as string,
         quizId: quizzId,
         quizzTitle,
+        quizzSubtitle,
+        quizzStartDate: quizzStartDate,
+        quizzEndDate: quizzEndDate,
       },
     });
   };
@@ -60,6 +80,7 @@ export default function DisciplineDetail() {
           subtitle: test.instructions ?? '{{ Sem instruções disponíveis }}',
           startDate: test.initialDate,
           endDate: test.endDate,
+          endingSoon: isEndingSoon(test.endDate),
         }));
         setSubjectTests(formattedTests);
         setError(null);
@@ -73,6 +94,32 @@ export default function DisciplineDetail() {
 
     fetchSubjectTests();
   }, [disciplineId]);
+
+  const renderTestItem = ({ item }: { item: DisciplineProps }) => (
+    <AppCard
+      title={item.title}
+      subtitle={
+        item.subtitle + (item.endingSoon ? ' - ' + 'Finaliza em 1 hora' : '')
+      }
+      onPress={() =>
+        handleQuizzPress(
+          item.id,
+          item.title,
+          item.subtitle ?? '',
+          item.startDate,
+          item.endDate,
+        )
+      }
+      className={item.endingSoon ? 'border-2 border-red-500' : ''}
+    >
+      <View className="mt-2 flex-row items-center rounded-md bg-red-100 p-2">
+        <Warning size={18} color="#FF3B30" weight="fill" />
+        <Text className="ml-2 text-sm font-medium text-red-600">
+          Atenção: Esta prova termina em menos de 1 hora!
+        </Text>
+      </View>
+    </AppCard>
+  );
 
   return (
     <View className="flex-1 bg-background">
@@ -96,13 +143,7 @@ export default function DisciplineDetail() {
           <FlatList
             data={subjectTests}
             keyExtractor={item => item.id}
-            renderItem={({ item }) => (
-              <AppCard
-                title={item.title}
-                subtitle={item.subtitle}
-                onPress={() => handleQuizzPress(item.id, item.title)}
-              />
-            )}
+            renderItem={renderTestItem}
             contentContainerStyle={{
               paddingBottom: 24,
               gap: 14,
