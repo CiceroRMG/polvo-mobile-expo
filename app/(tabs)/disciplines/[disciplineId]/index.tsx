@@ -11,6 +11,8 @@ import { userService } from '~/lib/services/user';
 interface DisciplineProps {
   id: string;
   title: string;
+  startDate: string;
+  endDate: string;
   subtitle?: string;
 }
 
@@ -56,6 +58,8 @@ export default function DisciplineDetail() {
           id: test.id,
           title: test.title,
           subtitle: test.instructions ?? '{{ Sem instruções disponíveis }}',
+          startDate: test.initialDate,
+          endDate: test.endDate,
         }));
         setSubjectTests(formattedTests);
         setError(null);
