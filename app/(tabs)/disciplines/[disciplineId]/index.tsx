@@ -111,14 +111,7 @@ export default function DisciplineDetail() {
         )
       }
       className={item.endingSoon ? 'border-2 border-red-500' : ''}
-    >
-      <View className="mt-2 flex-row items-center rounded-md bg-red-100 p-2">
-        <Warning size={18} color="#FF3B30" weight="fill" />
-        <Text className="ml-2 text-sm font-medium text-red-600">
-          Atenção: Esta prova termina em menos de 1 hora!
-        </Text>
-      </View>
-    </AppCard>
+    ></AppCard>
   );
 
   return (
