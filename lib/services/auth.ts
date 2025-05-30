@@ -8,7 +8,7 @@ interface LoginProps {
 export const authService = {
   async login(data: LoginProps) {
     try {
-      const response = await api.post('/login/hoken', data);
+      const response = await api.post('login/hoken', data);
       return response.data;
     } catch (error) {
       console.error('Erro ao fazer login:', error);
@@ -18,7 +18,7 @@ export const authService = {
 
   async sendPasswordResetEmail(email: string) {
     try {
-      const response = await api.post('/user/resetPassword/token', {
+      const response = await api.post('user/resetPassword/token', {
         email,
       });
 
