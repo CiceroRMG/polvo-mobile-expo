@@ -15,6 +15,7 @@ interface DisciplineProps {
   endDate: string;
   subtitle?: string;
   endingSoon?: boolean;
+  fullSubtitle?: string;
 }
 
 export default function DisciplineDetail() {
@@ -73,14 +74,23 @@ export default function DisciplineDetail() {
           userId,
         );
 
-        const formattedTests: DisciplineProps[] = tests.map(test => ({
-          id: test.id,
-          title: test.title,
-          subtitle: test.instructions ?? '{{ Sem instruções disponíveis }}',
-          startDate: test.initialDate,
-          endDate: test.endDate,
-          endingSoon: isEndingSoon(test.endDate),
-        }));
+        const formattedTests: DisciplineProps[] = tests.map(test => {
+          let fullSubtitle =
+            test.instructions ?? '{{ Sem instruções disponíveis }}';
+          let subtitle = fullSubtitle;
+          if (subtitle.length > 21) {
+            subtitle = subtitle.slice(0, 21) + '...';
+          }
+          return {
+            id: test.id,
+            title: test.title,
+            subtitle,
+            startDate: test.initialDate,
+            endDate: test.endDate,
+            endingSoon: isEndingSoon(test.endDate),
+            fullSubtitle,
+          };
+        });
 
         // Sort tests with ending soon first
         const sortedTests = formattedTests.sort((a, b) => {
@@ -115,7 +125,7 @@ export default function DisciplineDetail() {
         handleQuizzPress(
           item.id,
           item.title,
-          item.subtitle ?? '',
+          item.fullSubtitle ?? '',
           item.startDate,
           item.endDate,
         )
