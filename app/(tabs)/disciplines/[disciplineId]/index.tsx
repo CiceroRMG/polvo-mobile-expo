@@ -1,5 +1,4 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { Warning } from 'phosphor-react-native';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { Text, View, FlatList, ActivityIndicator } from 'react-native';
@@ -82,7 +81,18 @@ export default function DisciplineDetail() {
           endDate: test.endDate,
           endingSoon: isEndingSoon(test.endDate),
         }));
-        setSubjectTests(formattedTests);
+
+        // Sort tests with ending soon first
+        const sortedTests = formattedTests.sort((a, b) => {
+          // If a is ending soon and b is not, a comes first
+          if (a.endingSoon && !b.endingSoon) return -1;
+          // If b is ending soon and a is not, b comes first
+          if (!a.endingSoon && b.endingSoon) return 1;
+          // Otherwise maintain original order
+          return 0;
+        });
+
+        setSubjectTests(sortedTests);
         setError(null);
       } catch (error) {
         console.error('Failed to fetch subject tests:', error);
