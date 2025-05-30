@@ -1,8 +1,9 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { CalendarBlank, CalendarCheck } from 'phosphor-react-native';
+import { CalendarBlank, CalendarCheck, Clock } from 'phosphor-react-native';
 import * as React from 'react';
 import { useState } from 'react';
 import { useEffect } from 'react';
+import { useCallback } from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
 
 import { AppBackButton } from '~/components/app/AppBackButton';
@@ -11,7 +12,6 @@ import { AppModal } from '~/components/app/AppModal';
 import { storageService } from '~/lib/services/storage';
 import { userService } from '~/lib/services/user';
 import { useColorScheme } from '~/lib/useColorScheme';
-
 interface QuizData {
   id: string;
   title: string;
@@ -22,11 +22,19 @@ interface QuizData {
 }
 
 export default function QuizDetail() {
+  const [timeRemaining, setTimeRemaining] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [quizData, setQuizData] = useState<QuizData | null>(null);
 
-  const { quizId, disciplineId, quizzTitle } = useLocalSearchParams();
+  const {
+    quizId,
+    disciplineId,
+    quizzTitle,
+    quizzSubtitle,
+    quizzStartDate,
+    quizzEndDate,
+  } = useLocalSearchParams();
   const { colorScheme } = useColorScheme();
   const iconColor = colorScheme === 'dark' ? '#fafafa' : '#1A1C29';
   const [modalVisible, setModalVisible] = useState(false);
@@ -50,6 +58,52 @@ export default function QuizDetail() {
     }
   };
 
+  const calculateTimeRemaining = useCallback((endDateStr?: string) => {
+    if (!endDateStr) return 'Não disponível';
+
+    try {
+      const endDate = new Date(endDateStr);
+      const now = new Date();
+
+      if (now >= endDate) {
+        return 'Prazo encerrado';
+      }
+
+      const diffMs = endDate.getTime() - now.getTime();
+      const diffSec = Math.floor(diffMs / 1000);
+      const days = Math.floor(diffSec / (3600 * 24));
+
+      if (days > 0) {
+        return days === 1 ? '1 dia restante' : `${days} dias restantes`;
+      }
+
+      const hours = Math.floor((diffSec % (3600 * 24)) / 3600);
+      const minutes = Math.floor((diffSec % 3600) / 60);
+      const seconds = diffSec % 60;
+
+      const formattedHours = hours.toString().padStart(2, '0');
+      const formattedMinutes = minutes.toString().padStart(2, '0');
+      const formattedSeconds = seconds.toString().padStart(2, '0');
+
+      return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
+    } catch (error) {
+      console.error('Error calculating time remaining:', error);
+      return 'Erro no cálculo';
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!quizData?.endDate) return;
+
+    setTimeRemaining(calculateTimeRemaining(quizData.endDate));
+
+    const intervalId = setInterval(() => {
+      setTimeRemaining(calculateTimeRemaining(quizData.endDate));
+    }, 1000);
+
+    return () => clearInterval(intervalId);
+  }, [quizData?.endDate, calculateTimeRemaining]);
+
   useEffect(() => {
     const fetchQuizData = async () => {
       try {
@@ -67,13 +121,12 @@ export default function QuizDetail() {
           testId: quizId as string,
         });
 
-        // MOCK
         setQuizData({
           id: testDetails.id,
           title: quizzTitle as string,
           description: 'Descrição do quiz',
-          startDate: '2023-10-01T00:00:00Z',
-          endDate: '2023-10-10T00:00:00Z',
+          startDate: (quizzStartDate as string) ?? '',
+          endDate: (quizzEndDate as string) ?? '',
           instructions: 'Instruções para o quiz',
         });
       } catch (err) {
@@ -137,14 +190,33 @@ export default function QuizDetail() {
                   {formatDate(quizData?.endDate)}
                 </Text>
               </View>
+
+              <View className="flex-row items-center gap-2">
+                <Clock size={24} color={iconColor} />
+                <Text className="text-base font-normal text-primary">
+                  Tempo restante:
+                </Text>
+                <Text
+                  className={`text-base font-medium ${
+                    timeRemaining === 'Prazo encerrado'
+                      ? 'text-red-500'
+                      : 'text-main-textPurple'
+                  }`}
+                >
+                  {timeRemaining}
+                </Text>
+              </View>
             </View>
 
-            <AppButton
-              className="mt-4 w-40 py-2"
-              onPress={() => setModalVisible(true)}
-            >
-              Começar
-            </AppButton>
+            {/* Only show the start button if time hasn't expired */}
+            {timeRemaining !== 'Prazo encerrado' && (
+              <AppButton
+                className="mt-4 w-40 py-2"
+                onPress={() => setModalVisible(true)}
+              >
+                Começar
+              </AppButton>
+            )}
           </View>
         )}
       </View>
