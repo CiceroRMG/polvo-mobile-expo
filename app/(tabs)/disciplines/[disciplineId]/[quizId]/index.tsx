@@ -124,7 +124,9 @@ export default function QuizDetail() {
         setQuizData({
           id: testDetails.id,
           title: quizzTitle as string,
-          description: 'Descrição do quiz',
+          description: `1) Permita o acesso a camera para o Polvo.
+
+2) Instruções: ${quizzSubtitle as string}`,
           startDate: (quizzStartDate as string) ?? '',
           endDate: (quizzEndDate as string) ?? '',
           instructions: 'Instruções para o quiz',
