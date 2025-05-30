@@ -25,8 +25,15 @@ export default function DisciplineDetail() {
 
   const { disciplineId, disciplineTitle } = useLocalSearchParams();
 
-  const handleQuizzPress = (quizzId: string) => {
-    router.push(`/disciplines/${disciplineId}/${quizzId}`);
+  const handleQuizzPress = (quizzId: string, quizzTitle: string) => {
+    router.push({
+      pathname: '/disciplines/[disciplineId]/[quizId]',
+      params: {
+        disciplineId: disciplineId as string,
+        quizId: quizzId,
+        quizzTitle,
+      },
+    });
   };
 
   useEffect(() => {
@@ -39,7 +46,7 @@ export default function DisciplineDetail() {
           throw new Error('User ID not found');
         }
 
-        const tests = await userService.getSubjectData(
+        const tests = await userService.getSubjectTests(
           disciplineId as string,
           idOfThePermissionToSeeTests,
           userId,
@@ -87,9 +94,9 @@ export default function DisciplineDetail() {
             keyExtractor={item => item.id}
             renderItem={({ item }) => (
               <AppCard
-                onPress={() => handleQuizzPress(item.id)}
                 title={item.title}
-                subtitle={item.title}
+                subtitle={item.subtitle}
+                onPress={() => handleQuizzPress(item.id, item.title)}
               />
             )}
             contentContainerStyle={{
