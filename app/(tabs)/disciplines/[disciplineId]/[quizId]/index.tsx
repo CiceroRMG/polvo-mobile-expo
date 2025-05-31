@@ -1,17 +1,17 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { CalendarBlank, CalendarCheck, Clock } from 'phosphor-react-native';
 import * as React from 'react';
-import { useState } from 'react';
-import { useEffect } from 'react';
-import { useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
 
 import { AppBackButton } from '~/components/app/AppBackButton';
 import { AppButton } from '~/components/app/AppButton';
 import { AppModal } from '~/components/app/AppModal';
+import { useCountdown } from '~/hooks/useCountdown';
 import { storageService } from '~/lib/services/storage';
 import { userService } from '~/lib/services/user';
 import { useColorScheme } from '~/lib/useColorScheme';
+
 interface QuizData {
   id: string;
   title: string;
@@ -22,7 +22,6 @@ interface QuizData {
 }
 
 export default function QuizDetail() {
-  const [timeRemaining, setTimeRemaining] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [quizData, setQuizData] = useState<QuizData | null>(null);
@@ -38,6 +37,8 @@ export default function QuizDetail() {
   const { colorScheme } = useColorScheme();
   const iconColor = colorScheme === 'dark' ? '#fafafa' : '#1A1C29';
   const [modalVisible, setModalVisible] = useState(false);
+
+  const timeRemaining = useCountdown(quizData?.endDate);
 
   const handleConfirm = () => {
     router.push(`/disciplines/${disciplineId}/${quizId}/execute`);
@@ -57,52 +58,6 @@ export default function QuizDetail() {
       return 'Data inválida';
     }
   };
-
-  const calculateTimeRemaining = useCallback((endDateStr?: string) => {
-    if (!endDateStr) return 'Não disponível';
-
-    try {
-      const endDate = new Date(endDateStr);
-      const now = new Date();
-
-      if (now >= endDate) {
-        return 'Prazo encerrado';
-      }
-
-      const diffMs = endDate.getTime() - now.getTime();
-      const diffSec = Math.floor(diffMs / 1000);
-      const days = Math.floor(diffSec / (3600 * 24));
-
-      if (days > 0) {
-        return days === 1 ? '1 dia restante' : `${days} dias restantes`;
-      }
-
-      const hours = Math.floor((diffSec % (3600 * 24)) / 3600);
-      const minutes = Math.floor((diffSec % 3600) / 60);
-      const seconds = diffSec % 60;
-
-      const formattedHours = hours.toString().padStart(2, '0');
-      const formattedMinutes = minutes.toString().padStart(2, '0');
-      const formattedSeconds = seconds.toString().padStart(2, '0');
-
-      return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
-    } catch (error) {
-      console.error('Error calculating time remaining:', error);
-      return 'Erro no cálculo';
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!quizData?.endDate) return;
-
-    setTimeRemaining(calculateTimeRemaining(quizData.endDate));
-
-    const intervalId = setInterval(() => {
-      setTimeRemaining(calculateTimeRemaining(quizData.endDate));
-    }, 1000);
-
-    return () => clearInterval(intervalId);
-  }, [quizData?.endDate, calculateTimeRemaining]);
 
   useEffect(() => {
     const fetchQuizData = async () => {
