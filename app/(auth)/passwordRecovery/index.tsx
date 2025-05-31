@@ -14,9 +14,8 @@ import { AppButton } from '~/components/app/AppButton';
 import { AppInput } from '~/components/app/AppInput';
 import { AppModal } from '~/components/app/AppModal';
 import { AppTextButton } from '~/components/app/AppTextButton';
+import useTimer from '~/hooks/useTimer';
 import { authService } from '~/lib/services/auth';
-
-import usePasswordRecoveryCooldown from './(hooks)/usePasswordRecoveryCooldown';
 
 const passwordRecoverySchema = z.object({
   email: z
@@ -42,7 +41,9 @@ export default function PasswordRecovery() {
     defaultValues: { email: '' },
   });
 
-  const { cooldown, startCooldown } = usePasswordRecoveryCooldown();
+  const { cooldown, startCooldown } = useTimer({
+    storageKey: 'passwordRecoveryCooldown',
+  });
 
   const onSubmit = async (data: PasswordRecoveryForm) => {
     setIsLoading(true);

@@ -2,15 +2,15 @@ import { useState, useEffect, useRef } from 'react';
 
 import { storageService } from '~/lib/services/storage';
 
-interface UsePasswordRecoveryCooldownOptions {
+interface UseTimerOptions {
   cooldownSeconds?: number;
   storageKey?: string;
 }
 
-export default function usePasswordRecoveryCooldown({
+export default function useTimer({
   cooldownSeconds = 60,
-  storageKey = 'passwordRecoveryCooldown',
-}: UsePasswordRecoveryCooldownOptions = {}) {
+  storageKey = 'timerCooldown',
+}: UseTimerOptions = {}) {
   const [cooldown, setCooldown] = useState(0);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
