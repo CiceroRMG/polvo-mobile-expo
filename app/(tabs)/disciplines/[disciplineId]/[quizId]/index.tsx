@@ -126,7 +126,8 @@ export default function QuizDetail() {
           title: quizzTitle as string,
           description: `1) Permita o acesso a camera para o Polvo.
 
-2) Instruções: ${quizzSubtitle as string}`,
+2) Instruções:
+    ${quizzSubtitle as string}`,
           startDate: (quizzStartDate as string) ?? '',
           endDate: (quizzEndDate as string) ?? '',
           instructions: 'Instruções para o quiz',
