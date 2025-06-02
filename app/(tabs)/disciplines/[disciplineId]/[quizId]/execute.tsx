@@ -17,10 +17,9 @@ import { AppButton } from '~/components/app/AppButton';
 import { AppInput } from '~/components/app/AppInput';
 import { AppModal } from '~/components/app/AppModal';
 import { AppQuestionCard } from '~/components/app/AppQuestionCard';
-import { storageService } from '~/lib/services/storage';
 import { useCountdown } from '~/hooks/useCountdown';
+import { storageService } from '~/lib/services/storage';
 
-// Mock de questões - depois trocar por fetch do backend
 type Question =
   | {
       id: string;
