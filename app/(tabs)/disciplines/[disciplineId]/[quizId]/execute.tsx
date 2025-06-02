@@ -44,7 +44,8 @@ export default function QuizExecuteScreen() {
   const [showExitModal, setShowExitModal] = useState(false);
   const [showFinishModal, setShowFinishModal] = useState(false);
 
-  const { disciplineId, quizId, endDate } = useLocalSearchParams();
+  const { disciplineId, quizId, endDate, testApplicationId } =
+    useLocalSearchParams();
 
   const timeRemaining = useCountdown(endDate as string);
 
@@ -126,7 +127,7 @@ export default function QuizExecuteScreen() {
         actionId,
         {
           studentId,
-          testId: quizId as string,
+          testId: testApplicationId as string,
           questionId,
           answers: [answer],
         },
@@ -163,10 +164,6 @@ export default function QuizExecuteScreen() {
     try {
       setIsSubmitting(true);
 
-      //////////////////////////////////////////////
-      //CRIA A TEST-APPLICATION PRO BACK-END AQUI//
-      ///////////////////////////////////////////
-
       const student = await storageService.getUser();
       const studentId = student?.id || '';
       const idOfThePermissionToSeeTests =
@@ -176,7 +173,7 @@ export default function QuizExecuteScreen() {
         entityId: disciplineId as string,
         actionId: idOfThePermissionToSeeTests as string,
         studentId: studentId as string,
-        testApplicationId: quizId as string,
+        testApplicationId: testApplicationId as string,
       });
     } catch (error) {
       console.error('Erro ao finalizar o teste:', error);
@@ -184,7 +181,15 @@ export default function QuizExecuteScreen() {
     } finally {
       setIsSubmitting(false);
       alert('Teste finalizado com sucesso!');
-      router.back();
+
+      router.push({
+        pathname: '/disciplines/[disciplineId]/[quizId]',
+        params: {
+          disciplineId: disciplineId as string,
+          quizId: quizId as string,
+          refresh: 'true',
+        },
+      });
     }
   };
 
@@ -219,7 +224,15 @@ export default function QuizExecuteScreen() {
         confirmText="Sim, sair"
         onPress={() => {
           setShowExitModal(false);
-          router.back();
+
+          router.push({
+            pathname: '/disciplines/[disciplineId]/[quizId]',
+            params: {
+              disciplineId: disciplineId as string,
+              quizId: quizId as string,
+              refresh: 'true',
+            },
+          });
         }}
         onClose={() => setShowExitModal(false)}
         showCloseButton

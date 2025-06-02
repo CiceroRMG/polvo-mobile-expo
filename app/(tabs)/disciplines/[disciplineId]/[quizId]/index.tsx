@@ -27,7 +27,6 @@ export default function QuizDetail() {
   const [isLoading, setIsLoading] = useState(true);
   const [quizData, setQuizData] = useState<QuizData | null>(null);
 
-  // WE SHOULD GOT THIS FROM SOMEWHERE IN THE BACK-END THAT I DON'T KNOW YET -> ActionId
   const idOfThePermissionToSeeTests =
     process.env.EXPO_PUBLIC_API_SEE_TESTS_PERMISSION ?? '';
 
@@ -38,6 +37,7 @@ export default function QuizDetail() {
     quizzSubtitle,
     quizzStartDate,
     quizzEndDate,
+    refresh,
   } = useLocalSearchParams();
   const { colorScheme } = useColorScheme();
   const iconColor = colorScheme === 'dark' ? '#fafafa' : '#1A1C29';
@@ -59,7 +59,8 @@ export default function QuizDetail() {
       pathname: '/disciplines/[disciplineId]/[quizId]/execute',
       params: {
         disciplineId: disciplineId as string,
-        quizId: quizData?.id as string,
+        testApplicationId: quizData?.id as string,
+        quizId: quizId as string,
         endDate: quizData?.endDate,
       },
     });
@@ -96,6 +97,12 @@ export default function QuizDetail() {
       return 'Data inválida';
     }
   };
+
+  useEffect(() => {
+    if (refresh === 'true') {
+      router.setParams({ refresh: '' });
+    }
+  }, [refresh]);
 
   useEffect(() => {
     const fetchQuizData = async () => {
