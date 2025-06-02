@@ -33,11 +33,6 @@ type Question =
 type Answers = Record<string, string>;
 
 export default function QuizExecuteScreen() {
-  const [answerSubmitting, setAnswerSubmitting] = useState<
-    Record<string, boolean>
-  >({});
-  const [answerErrors, setAnswerErrors] = useState<Record<string, string>>({});
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -134,20 +129,33 @@ export default function QuizExecuteScreen() {
     setShowFinishModal(true);
   };
 
-  const confirmFinishingTest = () => {
+  const confirmFinishingTest = async () => {
     if (isSubmitting) return;
     try {
-      setLoading(true);
       setIsSubmitting(true);
       console.log('Finalizando teste com as respostas:', answers);
+
       //////////////////////////////////////////////
       //CRIA A TEST-APPLICATION PRO BACK-END AQUI//
       ///////////////////////////////////////////
+
+      const student = await storageService.getUser();
+      const studentId = student?.id || '';
+      const idOfThePermissionToSeeTests =
+        process.env.EXPO_PUBLIC_API_SEE_TESTS_PERMISSION ?? '';
+
+      await userService.markStudentTestApplicationAsCompleted({
+        entityId: disciplineId as string,
+        actionId: idOfThePermissionToSeeTests as string,
+        studentId: studentId as string,
+        testApplicationId: quizId as string,
+      });
+
+      console.log('Teste marcado como completo com sucesso');
     } catch (error) {
       console.error('Erro ao finalizar o teste:', error);
       setError('Erro ao finalizar o teste. Tente novamente mais tarde.');
     } finally {
-      setLoading(false);
       setIsSubmitting(false);
       alert('Teste finalizado com sucesso!');
       router.back();
@@ -161,9 +169,6 @@ export default function QuizExecuteScreen() {
 
     // Update local state first for immediate UI feedback
     setAnswers(prev => ({ ...prev, [questionId]: value }));
-
-    // Mark this question as submitting
-    setAnswerSubmitting(prev => ({ ...prev, [questionId]: true }));
 
     try {
       // Get student ID from storage
@@ -188,20 +193,8 @@ export default function QuizExecuteScreen() {
           answerId: value, // The selected answer ID
         },
       );
-
-      // Clear any previous errors
-      setAnswerErrors(prev => ({ ...prev, [questionId]: '' }));
     } catch (error) {
       console.error('Failed to save answer:', error);
-
-      // Record the error but keep the user's selection
-      setAnswerErrors(prev => ({
-        ...prev,
-        [questionId]: 'Falha ao salvar resposta no servidor',
-      }));
-    } finally {
-      // Mark this question as no longer submitting
-      setAnswerSubmitting(prev => ({ ...prev, [questionId]: false }));
     }
   };
 
