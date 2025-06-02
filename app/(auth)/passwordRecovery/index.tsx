@@ -15,6 +15,7 @@ import { AppInput } from '~/components/app/AppInput';
 import { AppModal } from '~/components/app/AppModal';
 import { AppTextButton } from '~/components/app/AppTextButton';
 import useTimer from '~/hooks/useTimer';
+import { STORAGE_KEYS } from '~/lib/enums/storageKeys';
 import { authService } from '~/lib/services/auth';
 
 const passwordRecoverySchema = z.object({
@@ -42,7 +43,7 @@ export default function PasswordRecovery() {
   });
 
   const { cooldown, startCooldown } = useTimer({
-    storageKey: 'passwordRecoveryCooldown',
+    storageKey: STORAGE_KEYS.PASSWORD_RESET_TIMER,
   });
 
   const onSubmit = async (data: PasswordRecoveryForm) => {
