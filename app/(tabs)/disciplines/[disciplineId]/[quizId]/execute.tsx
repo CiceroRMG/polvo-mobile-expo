@@ -42,6 +42,7 @@ export default function QuizExecuteScreen() {
   const [answers, setAnswers] = useState<Answers>({});
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [showExitModal, setShowExitModal] = useState(false);
+  const [showFinishModal, setShowFinishModal] = useState(false);
 
   const { endDate } = useLocalSearchParams();
 
@@ -128,8 +129,11 @@ export default function QuizExecuteScreen() {
   };
 
   const handleFinishingTest = () => {
-    if (isSubmitting) return;
+    setShowFinishModal(true);
+  };
 
+  const confirmFinishingTest = () => {
+    if (isSubmitting) return;
     try {
       setLoading(true);
       setIsSubmitting(true);
@@ -143,7 +147,7 @@ export default function QuizExecuteScreen() {
     } finally {
       setLoading(false);
       setIsSubmitting(false);
-      alert('Teste finalizado com sucesso, voltando!');
+      alert('Teste finalizado com sucesso!');
       router.back();
     }
   };
@@ -167,6 +171,20 @@ export default function QuizExecuteScreen() {
           router.back();
         }}
         onClose={() => setShowExitModal(false)}
+        showCloseButton
+      />
+
+      {/* Finish confirmation modal */}
+      <AppModal
+        visible={showFinishModal}
+        title="Finalizar teste?"
+        message="Tem certeza que deseja finalizar o teste? Você não poderá alterar suas respostas depois disso."
+        confirmText={isSubmitting ? 'Enviando...' : 'Sim, finalizar'}
+        onPress={() => {
+          setShowFinishModal(false);
+          confirmFinishingTest();
+        }}
+        onClose={() => setShowFinishModal(false)}
         showCloseButton
       />
 
