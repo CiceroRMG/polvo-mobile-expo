@@ -1,4 +1,4 @@
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { Alarm, Brain, Warning } from 'phosphor-react-native';
 import React, { useEffect, useState } from 'react';
 import {
@@ -18,6 +18,7 @@ import { AppInput } from '~/components/app/AppInput';
 import { AppModal } from '~/components/app/AppModal';
 import { AppQuestionCard } from '~/components/app/AppQuestionCard';
 import { storageService } from '~/lib/services/storage';
+import { useCountdown } from '~/hooks/useCountdown';
 
 // Mock de questões - depois trocar por fetch do backend
 type Question =
@@ -28,26 +29,6 @@ type Question =
       options: { id: string; text: string }[];
     }
   | { id: string; type: 'descriptive'; question: string };
-
-/* const mockQuestions: Question[] = [
-  {
-    id: '1',
-    type: 'alternatives',
-    question: 'Qual a capital da França?',
-    options: ['Paris', 'Londres', 'Berlim', 'Roma'],
-  },
-  {
-    id: '2',
-    type: 'descriptive',
-    question: 'Explique o conceito de fotossíntese.',
-  },
-  {
-    id: '3',
-    type: 'alternatives',
-    question: 'Qual o resultado de 2 + 2?',
-    options: ['3', '4', '5', '6'],
-  },
-]; */
 
 type Answers = Record<string, string>;
 
@@ -62,6 +43,10 @@ export default function QuizExecuteScreen() {
   const [answers, setAnswers] = useState<Answers>({});
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [showExitModal, setShowExitModal] = useState(false);
+
+  const { endDate } = useLocalSearchParams();
+
+  const timeRemaining = useCountdown(endDate as string);
 
   useEffect(() => {
     const setNextCurrentQuestion = () => {
@@ -234,7 +219,7 @@ export default function QuizExecuteScreen() {
             </View>
             <View className="flex-row items-center gap-3">
               <Text className="text-lg font-bold text-primary">
-                Tempo restante
+                {timeRemaining}
               </Text>
               <Alarm size={24} color="#4338CA" />
             </View>

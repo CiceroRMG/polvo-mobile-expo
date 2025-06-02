@@ -41,7 +41,14 @@ export default function QuizDetail() {
   const timeRemaining = useCountdown(quizData?.endDate);
 
   const handleConfirm = () => {
-    router.push(`/disciplines/${disciplineId}/${quizId}/execute`);
+    router.push({
+      pathname: '/disciplines/[disciplineId]/[quizId]/execute',
+      params: {
+        disciplineId: disciplineId as string,
+        quizId: quizId as string,
+        endDate: quizData?.endDate,
+      },
+    });
   };
 
   const formatDate = (dateString?: string) => {
