@@ -12,7 +12,7 @@ import {
   UserSubjectsResponse,
 } from './types/user';
 
-interface getUserEnteredTestParams {
+interface getTestDetailsParams {
   entityId: string;
   actionId: string;
   studentId: string;
@@ -54,12 +54,12 @@ export const userService = {
     }
   },
 
-  async getUserEnteredTest({
+  async getTestDetails({
     actionId,
     entityId,
     studentId,
     testId,
-  }: getUserEnteredTestParams): Promise<TestDetailsData> {
+  }: getTestDetailsParams): Promise<TestDetailsData> {
     try {
       const response: AxiosResponse<TestDetailsResponse> = await api.post(
         `ehq/${entityId}/${actionId}/studentGetTest`,

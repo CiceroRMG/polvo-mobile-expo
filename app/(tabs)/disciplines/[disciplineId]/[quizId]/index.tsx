@@ -76,7 +76,7 @@ export default function QuizDetail() {
         const idOfThePermissionToSeeTests =
           process.env.EXPO_PUBLIC_API_SEE_TESTS_PERMISSION ?? '';
 
-        const testDetails = await userService.getUserEnteredTest({
+        const testDetails = await userService.getTestDetails({
           entityId: disciplineId as string,
           actionId: idOfThePermissionToSeeTests,
           studentId: studentId,
