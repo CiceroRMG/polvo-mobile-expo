@@ -79,6 +79,7 @@ export default function QuizDetail() {
         setQuizData({
           id: testDetails.id,
           title: quizzTitle as string,
+          // Isso aqui ta ilegivel, mas é o que temos por enquanto
           description: `1) Permita o acesso a camera para o Polvo.
 
 2) Instruções:
@@ -87,6 +88,8 @@ export default function QuizDetail() {
           endDate: (quizzEndDate as string) ?? '',
           instructions: 'Instruções para o quiz',
         });
+
+        await storageService.saveQuestions(testDetails.questions);
       } catch (err) {
         console.error('Failed to fetch quiz data:', err);
         setError(
