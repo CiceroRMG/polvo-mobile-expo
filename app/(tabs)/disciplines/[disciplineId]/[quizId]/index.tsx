@@ -19,12 +19,17 @@ interface QuizData {
   startDate?: string;
   endDate?: string;
   instructions?: string;
+  status?: string;
 }
 
 export default function QuizDetail() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [quizData, setQuizData] = useState<QuizData | null>(null);
+
+  // WE SHOULD GOT THIS FROM SOMEWHERE IN THE BACK-END THAT I DON'T KNOW YET -> ActionId
+  const idOfThePermissionToSeeTests =
+    process.env.EXPO_PUBLIC_API_SEE_TESTS_PERMISSION ?? '';
 
   const {
     quizId,
@@ -41,14 +46,42 @@ export default function QuizDetail() {
   const timeRemaining = useCountdown(quizData?.endDate);
 
   const handleConfirm = () => {
+    markTestAsInProgress()
+      .then(() => {
+        setModalVisible(false);
+      })
+      .catch(err => {
+        console.error('Error marking test as in progress:', err);
+        setError('Erro ao iniciar o quiz. Tente novamente mais tarde.');
+      });
+
     router.push({
       pathname: '/disciplines/[disciplineId]/[quizId]/execute',
       params: {
         disciplineId: disciplineId as string,
-        quizId: quizId as string,
+        quizId: quizData?.id as string,
         endDate: quizData?.endDate,
       },
     });
+  };
+
+  const markTestAsInProgress = async () => {
+    try {
+      const student = await storageService.getUser();
+      const studentId = student?.id || '';
+
+      await userService.markStudentTestApplicationAsInProgress(
+        disciplineId as string,
+        idOfThePermissionToSeeTests as string,
+        studentId as string,
+        quizData?.id as string,
+      );
+
+      console.log('Test marked as in progress successfully');
+    } catch (error) {
+      console.error('Failed to mark test as in progress:', error);
+      setError('Erro ao iniciar o quiz. Tente novamente mais tarde.');
+    }
   };
 
   const formatDate = (dateString?: string) => {
@@ -94,6 +127,7 @@ export default function QuizDetail() {
           startDate: (quizzStartDate as string) ?? '',
           endDate: (quizzEndDate as string) ?? '',
           instructions: 'Instruções para o quiz',
+          status: testDetails.status,
         });
 
         await storageService.saveQuestions(testDetails.questions);
@@ -180,9 +214,13 @@ export default function QuizDetail() {
             {timeRemaining !== 'Prazo encerrado' && (
               <AppButton
                 className="mt-4 w-40 py-2"
-                onPress={() => setModalVisible(true)}
+                onPress={
+                  quizData?.status === 'no-started'
+                    ? () => setModalVisible(true)
+                    : handleConfirm
+                }
               >
-                Começar
+                {quizData?.status === 'no-started' ? 'Começar' : 'Continuar'}
               </AppButton>
             )}
           </View>

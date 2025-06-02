@@ -19,6 +19,7 @@ import { AppModal } from '~/components/app/AppModal';
 import { AppQuestionCard } from '~/components/app/AppQuestionCard';
 import { useCountdown } from '~/hooks/useCountdown';
 import { storageService } from '~/lib/services/storage';
+import { userService } from '~/lib/services/user';
 
 type Question =
   | {
@@ -32,6 +33,11 @@ type Question =
 type Answers = Record<string, string>;
 
 export default function QuizExecuteScreen() {
+  const [answerSubmitting, setAnswerSubmitting] = useState<
+    Record<string, boolean>
+  >({});
+  const [answerErrors, setAnswerErrors] = useState<Record<string, string>>({});
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -44,7 +50,7 @@ export default function QuizExecuteScreen() {
   const [showExitModal, setShowExitModal] = useState(false);
   const [showFinishModal, setShowFinishModal] = useState(false);
 
-  const { endDate } = useLocalSearchParams();
+  const { disciplineId, quizId, endDate } = useLocalSearchParams();
 
   const timeRemaining = useCountdown(endDate as string);
 
@@ -110,10 +116,6 @@ export default function QuizExecuteScreen() {
     };
   }, []);
 
-  const handleAnswer = (value: string) => {
-    setAnswers(prev => ({ ...prev, [questions[current].id]: value }));
-  };
-
   const handleNext = () => {
     if (current < questions.length - 1) {
       setCurrent(current + 1);
@@ -149,6 +151,57 @@ export default function QuizExecuteScreen() {
       setIsSubmitting(false);
       alert('Teste finalizado com sucesso!');
       router.back();
+    }
+  };
+
+  const handleAnswer = async (value: string) => {
+    if (!currentQuestion) return;
+
+    const questionId = currentQuestion.id;
+
+    // Update local state first for immediate UI feedback
+    setAnswers(prev => ({ ...prev, [questionId]: value }));
+
+    // Mark this question as submitting
+    setAnswerSubmitting(prev => ({ ...prev, [questionId]: true }));
+
+    try {
+      // Get student ID from storage
+      const student = await storageService.getUser();
+      const studentId = student?.id || '';
+
+      if (!studentId) {
+        throw new Error('User ID not found');
+      }
+
+      // Get permission ID from environment variables
+      const actionId = process.env.EXPO_PUBLIC_API_SEE_TESTS_PERMISSION ?? '';
+
+      // Send the answer to the server
+      await userService.sendStudentQuestionAnswer(
+        disciplineId as string,
+        actionId,
+        {
+          studentId,
+          testId: quizId as string,
+          questionId,
+          answerId: value, // The selected answer ID
+        },
+      );
+
+      // Clear any previous errors
+      setAnswerErrors(prev => ({ ...prev, [questionId]: '' }));
+    } catch (error) {
+      console.error('Failed to save answer:', error);
+
+      // Record the error but keep the user's selection
+      setAnswerErrors(prev => ({
+        ...prev,
+        [questionId]: 'Falha ao salvar resposta no servidor',
+      }));
+    } finally {
+      // Mark this question as no longer submitting
+      setAnswerSubmitting(prev => ({ ...prev, [questionId]: false }));
     }
   };
 
