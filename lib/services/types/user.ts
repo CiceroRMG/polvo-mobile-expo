@@ -74,7 +74,7 @@ interface Answer {
   text: string;
 }
 
-interface Question {
+export interface Question {
   title: string;
   body: string;
   answers: Answer[];
