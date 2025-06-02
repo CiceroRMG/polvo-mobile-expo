@@ -57,18 +57,6 @@ export interface SubjectTestDetails extends TestItem {
   status: string;
 }
 
-// Final
-export interface SubjectDataResponse {
-  success: boolean;
-  data: SubjectTestDetails[];
-}
-
-// Interface para o objeto que contém 'success' e o array 'data'
-export interface UserSubjectsResponse {
-  success: boolean;
-  data: EntityDataItem[];
-}
-
 interface Answer {
   _id: string;
   text: string;
@@ -92,7 +80,7 @@ export interface TestDetailsData {
   status: string;
 }
 
-export interface TestDetailsResponse {
+export interface BaseApiResponse<T> {
   success: boolean;
-  data: TestDetailsData;
+  data: T;
 }

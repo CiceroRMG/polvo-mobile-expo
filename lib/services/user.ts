@@ -4,12 +4,10 @@ import api from '../api';
 import { tokenManager } from '../auth/tokenManager';
 
 import {
+  BaseApiResponse,
   EntityDataItem,
-  SubjectDataResponse,
   SubjectTestDetails,
   TestDetailsData,
-  TestDetailsResponse,
-  UserSubjectsResponse,
 } from './types/user';
 
 interface getTestDetailsParams {
@@ -19,15 +17,20 @@ interface getTestDetailsParams {
   testId: string;
 }
 
+interface sendStudentQuestionAnswerParams {
+  studentId: string;
+  testId: string;
+  questionId: string;
+  answerId: string;
+}
+
 export const userService = {
   async getUserEnrolledSubjects(): Promise<EntityDataItem[]> {
     try {
-      const response: AxiosResponse<UserSubjectsResponse> = await api.get(
-        'user/entitiesWithTests',
-        {
+      const response: AxiosResponse<BaseApiResponse<EntityDataItem[]>> =
+        await api.get('user/entitiesWithTests', {
           headers: tokenManager.getAuthencationHeaders(),
-        },
-      );
+        });
 
       return response.data.data;
     } catch (error) {
@@ -41,11 +44,12 @@ export const userService = {
     studentId: string,
   ): Promise<SubjectTestDetails[]> {
     try {
-      const response: AxiosResponse<SubjectDataResponse> = await api.post(
-        `ehq/${entityId}/${actionId}/studentTestEnter`,
-        { entityId, studentId },
-        { headers: tokenManager.getAuthencationHeaders() },
-      );
+      const response: AxiosResponse<BaseApiResponse<SubjectTestDetails[]>> =
+        await api.post(
+          `ehq/${entityId}/${actionId}/studentTestEnter`,
+          { entityId, studentId },
+          { headers: tokenManager.getAuthencationHeaders() },
+        );
 
       return response.data.data;
     } catch (error) {
@@ -61,11 +65,12 @@ export const userService = {
     testId,
   }: getTestDetailsParams): Promise<TestDetailsData> {
     try {
-      const response: AxiosResponse<TestDetailsResponse> = await api.post(
-        `ehq/${entityId}/${actionId}/studentGetTest`,
-        { studentId, testId },
-        { headers: tokenManager.getAuthencationHeaders() },
-      );
+      const response: AxiosResponse<BaseApiResponse<TestDetailsData>> =
+        await api.post(
+          `ehq/${entityId}/${actionId}/studentGetTest`,
+          { studentId, testId },
+          { headers: tokenManager.getAuthencationHeaders() },
+        );
 
       return response.data.data;
     } catch (error) {
