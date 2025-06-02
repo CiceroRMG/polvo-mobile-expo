@@ -96,4 +96,26 @@ export const userService = {
       throw error;
     }
   },
+
+  async markStudentTestApplicationAsInProgress(
+    entityId: string,
+    actionId: string,
+    studentId: string,
+    testApplicationId: string,
+  ) {
+    try {
+      const response: AxiosResponse<BaseApiResponse<void>> = await api.post(
+        `ehq/${entityId}/${actionId}/markStudentTestApplicationAsInProgress`,
+        { studentId, testApplicationId },
+        { headers: tokenManager.getAuthencationHeaders() },
+      );
+      return response.data.data;
+    } catch (error) {
+      console.error(
+        'Error marking student test application as in progress:',
+        error,
+      );
+      throw error;
+    }
+  },
 };
