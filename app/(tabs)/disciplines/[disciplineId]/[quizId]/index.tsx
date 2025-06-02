@@ -38,6 +38,7 @@ export default function QuizDetail() {
     quizzStartDate,
     quizzEndDate,
     refresh,
+    disciplineTitle,
   } = useLocalSearchParams();
   const { colorScheme } = useColorScheme();
   const iconColor = colorScheme === 'dark' ? '#fafafa' : '#1A1C29';
@@ -62,6 +63,12 @@ export default function QuizDetail() {
         testApplicationId: quizData?.id as string,
         quizId: quizId as string,
         endDate: quizData?.endDate,
+        quizzTitle,
+        quizzSubtitle,
+        quizzStartDate,
+        quizzEndDate,
+        refresh,
+        disciplineTitle,
       },
     });
   };
@@ -156,6 +163,15 @@ export default function QuizDetail() {
           <AppBackButton
             label={(quizzTitle as string) || 'Quiz'}
             labelClassName="text-3xl font-bold text-primary ml-2"
+            onPress={() =>
+              router.push({
+                pathname: '/disciplines/[disciplineId]',
+                params: {
+                  disciplineId: disciplineId as string,
+                  disciplineTitle: disciplineTitle as string,
+                },
+              })
+            }
           />
         </View>
 

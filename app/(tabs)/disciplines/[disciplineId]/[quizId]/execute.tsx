@@ -44,8 +44,17 @@ export default function QuizExecuteScreen() {
   const [showExitModal, setShowExitModal] = useState(false);
   const [showFinishModal, setShowFinishModal] = useState(false);
 
-  const { disciplineId, quizId, endDate, testApplicationId } =
-    useLocalSearchParams();
+  const {
+    disciplineId,
+    quizId,
+    endDate,
+    testApplicationId,
+    quizzTitle,
+    quizzSubtitle,
+    quizzStartDate,
+    quizzEndDate,
+    disciplineTitle,
+  } = useLocalSearchParams();
 
   const timeRemaining = useCountdown(endDate as string);
 
@@ -188,6 +197,13 @@ export default function QuizExecuteScreen() {
           disciplineId: disciplineId as string,
           quizId: quizId as string,
           refresh: 'true',
+          endDate,
+          testApplicationId,
+          quizzTitle,
+          quizzSubtitle,
+          quizzStartDate,
+          quizzEndDate,
+          disciplineTitle,
         },
       });
     }
@@ -231,6 +247,13 @@ export default function QuizExecuteScreen() {
               disciplineId: disciplineId as string,
               quizId: quizId as string,
               refresh: 'true',
+              endDate,
+              testApplicationId,
+              quizzTitle,
+              quizzSubtitle,
+              quizzStartDate,
+              quizzEndDate,
+              disciplineTitle,
             },
           });
         }}

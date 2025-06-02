@@ -49,6 +49,7 @@ export default function DisciplineDetail() {
       pathname: '/disciplines/[disciplineId]/[quizId]',
       params: {
         disciplineId: disciplineId as string,
+        disciplineTitle: disciplineTitle as string,
         quizId: quizzId,
         quizzTitle,
         quizzSubtitle,
@@ -141,6 +142,15 @@ export default function DisciplineDetail() {
           <AppBackButton
             label={`${disciplineTitle}`}
             labelClassName="text-3xl font-bold text-primary ml-2"
+            onPress={() =>
+              router.push({
+                pathname: '/disciplines',
+                params: {
+                  disciplineId: disciplineId as string,
+                  disciplineTitle: disciplineTitle as string,
+                },
+              })
+            }
           />
         </View>
 
