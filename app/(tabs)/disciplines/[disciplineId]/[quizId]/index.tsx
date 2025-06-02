@@ -244,7 +244,7 @@ export default function QuizDetail() {
               </View>
             </View>
 
-            {quizData?.status !== 'completed' && (
+            {!['completed', 'graded'].includes(quizData?.status ?? '') && (
               <AppButton
                 className="mt-4 w-40 py-2"
                 onPress={
