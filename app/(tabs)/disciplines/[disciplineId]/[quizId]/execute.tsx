@@ -20,6 +20,7 @@ import { AppQuestionCard } from '~/components/app/AppQuestionCard';
 import { useCountdown } from '~/hooks/useCountdown';
 import { storageService } from '~/lib/services/storage';
 import { userService } from '~/lib/services/user';
+import { answer } from '~/lib/services/user';
 
 type Question =
   | {
@@ -30,8 +31,6 @@ type Question =
     }
   | { id: string; type: 'descriptive'; question: string };
 
-type Answers = Record<string, string>;
-
 export default function QuizExecuteScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -40,7 +39,7 @@ export default function QuizExecuteScreen() {
 
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
   const [current, setCurrent] = useState(0);
-  const [answers, setAnswers] = useState<Answers>({});
+  const [answers, setAnswers] = useState<Record<string, answer>>({});
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [showExitModal, setShowExitModal] = useState(false);
   const [showFinishModal, setShowFinishModal] = useState(false);
@@ -111,15 +110,45 @@ export default function QuizExecuteScreen() {
     };
   }, []);
 
-  const handleNext = () => {
-    if (current < questions.length - 1) {
-      setCurrent(current + 1);
-    } else {
-      alert('Quiz finalizado!');
+  const saveAnswerUserAnswer = async (questionId: string, answer: answer) => {
+    try {
+      const student = await storageService.getUser();
+      const studentId = student?.id || '';
+
+      if (!studentId) {
+        throw new Error('User ID not found');
+      }
+
+      const actionId = process.env.EXPO_PUBLIC_API_SEE_TESTS_PERMISSION ?? '';
+
+      await userService.sendStudentQuestionAnswer(
+        disciplineId as string,
+        actionId,
+        {
+          studentId,
+          testId: quizId as string,
+          questionId,
+          answers: [answer],
+        },
+      );
+    } catch (error) {
+      console.error('Failed to save answer:', error);
     }
   };
 
-  const handlePrev = () => {
+  const handleNext = async () => {
+    if (!currentQuestion) return;
+
+    if (current < questions.length - 1) {
+      setCurrent(current + 1);
+    } else {
+      handleFinishingTest();
+    }
+  };
+
+  const handlePrev = async () => {
+    if (!currentQuestion) return;
+
     if (current > 0) {
       setCurrent(current - 1);
     }
@@ -133,7 +162,6 @@ export default function QuizExecuteScreen() {
     if (isSubmitting) return;
     try {
       setIsSubmitting(true);
-      console.log('Finalizando teste com as respostas:', answers);
 
       //////////////////////////////////////////////
       //CRIA A TEST-APPLICATION PRO BACK-END AQUI//
@@ -150,8 +178,6 @@ export default function QuizExecuteScreen() {
         studentId: studentId as string,
         testApplicationId: quizId as string,
       });
-
-      console.log('Teste marcado como completo com sucesso');
     } catch (error) {
       console.error('Erro ao finalizar o teste:', error);
       setError('Erro ao finalizar o teste. Tente novamente mais tarde.');
@@ -162,40 +188,19 @@ export default function QuizExecuteScreen() {
     }
   };
 
-  const handleAnswer = async (value: string) => {
+  const handleAnswer = async (userQuestionAnswer: answer) => {
     if (!currentQuestion) return;
 
     const questionId = currentQuestion.id;
+    const currentAnswer = answers[questionId];
 
-    // Update local state first for immediate UI feedback
-    setAnswers(prev => ({ ...prev, [questionId]: value }));
+    // Store answer with question ID as key
+    setAnswers(prev => ({
+      ...prev,
+      [questionId]: userQuestionAnswer,
+    }));
 
-    try {
-      // Get student ID from storage
-      const student = await storageService.getUser();
-      const studentId = student?.id || '';
-
-      if (!studentId) {
-        throw new Error('User ID not found');
-      }
-
-      // Get permission ID from environment variables
-      const actionId = process.env.EXPO_PUBLIC_API_SEE_TESTS_PERMISSION ?? '';
-
-      // Send the answer to the server
-      await userService.sendStudentQuestionAnswer(
-        disciplineId as string,
-        actionId,
-        {
-          studentId,
-          testId: quizId as string,
-          questionId,
-          answerId: value, // The selected answer ID
-        },
-      );
-    } catch (error) {
-      console.error('Failed to save answer:', error);
-    }
+    await saveAnswerUserAnswer(questionId, currentAnswer);
   };
 
   return (
@@ -311,8 +316,10 @@ export default function QuizExecuteScreen() {
                 currentQuestion.options.map(item => (
                   <AppAnswerCard
                     key={item.id}
-                    selected={answers[currentQuestion.id] === item.id}
-                    onPress={() => handleAnswer(item.id)}
+                    selected={answers[currentQuestion.id]?._id === item.id}
+                    onPress={() =>
+                      handleAnswer({ _id: item.id, text: item.text })
+                    }
                     className="mb-6"
                   >
                     {item.text}
@@ -321,10 +328,12 @@ export default function QuizExecuteScreen() {
               ) : (
                 <AppInput
                   placeholder="Digite sua resposta..."
-                  value={
-                    currentQuestion ? answers[currentQuestion.id] || '' : ''
-                  }
-                  onChangeText={handleAnswer}
+                  value={answers[currentQuestion?.id || '']?.text || ''}
+                  onChangeText={text => {
+                    if (currentQuestion) {
+                      handleAnswer({ _id: currentQuestion.id, text });
+                    }
+                  }}
                   multiline
                   className="mb-6 min-h-40 py-6"
                   textAlignVertical="top"
@@ -353,7 +362,7 @@ export default function QuizExecuteScreen() {
                   onPress={handleNext}
                   disabled={
                     !currentQuestion?.id ||
-                    !answers[currentQuestion.id] ||
+                    !answers[currentQuestion?.id] ||
                     isSubmitting
                   }
                   className={current > 0 ? 'flex-1' : 'flex-[2]'}
