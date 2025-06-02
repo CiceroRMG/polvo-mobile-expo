@@ -1,15 +1,16 @@
 import { useState, useEffect, useRef } from 'react';
 
+import { STORAGE_KEYS } from '~/lib/enums/storageKeys';
 import { storageService } from '~/lib/services/storage';
 
 interface UseTimerOptions {
   cooldownSeconds?: number;
-  storageKey?: string;
+  storageKey?: STORAGE_KEYS;
 }
 
 export default function useTimer({
   cooldownSeconds = 60,
-  storageKey = 'timerCooldown',
+  storageKey = STORAGE_KEYS.DEFAULT_TIMER,
 }: UseTimerOptions = {}) {
   const [cooldown, setCooldown] = useState(0);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -18,7 +19,9 @@ export default function useTimer({
   useEffect(() => {
     const loadExistingCooldown = async () => {
       try {
-        const lastSentTimestamp = await storageService.getItem(storageKey);
+        const lastSentTimestamp = await storageService.getItem(
+          storageKey.toString(),
+        );
         if (!lastSentTimestamp) return;
 
         const elapsedSeconds = getElapsedSeconds(
@@ -74,7 +77,7 @@ export default function useTimer({
   const startCooldown = async () => {
     const now = Date.now();
     setCooldown(cooldownSeconds);
-    await storageService.setItem(storageKey, now.toString());
+    await storageService.setItem(storageKey.toString(), now.toString());
   };
 
   return { cooldown, startCooldown };
