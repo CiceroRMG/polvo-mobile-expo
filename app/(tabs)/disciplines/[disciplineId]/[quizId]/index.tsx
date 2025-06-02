@@ -76,8 +76,6 @@ export default function QuizDetail() {
         studentId: studentId as string,
         testApplicationId: quizData?.id as string,
       });
-
-      console.log('Test marked as in progress successfully');
     } catch (error) {
       console.error('Failed to mark test as in progress:', error);
       setError('Erro ao iniciar o quiz. Tente novamente mais tarde.');
