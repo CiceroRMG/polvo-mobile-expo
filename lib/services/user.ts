@@ -78,4 +78,22 @@ export const userService = {
       throw error;
     }
   },
+
+  async sendStudentQuestionAnswer(
+    entityId: string,
+    actionId: string,
+    data: sendStudentQuestionAnswerParams,
+  ) {
+    try {
+      const response: AxiosResponse<BaseApiResponse<void>> = await api.post(
+        `ehq/${entityId}/${actionId}/studentQuestionAnswer`,
+        data,
+        { headers: tokenManager.getAuthencationHeaders() },
+      );
+      return response.data.data;
+    } catch (error) {
+      console.error('Error sending student question answer:', error);
+      throw error;
+    }
+  },
 };
