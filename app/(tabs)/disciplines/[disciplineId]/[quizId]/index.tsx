@@ -70,12 +70,12 @@ export default function QuizDetail() {
       const student = await storageService.getUser();
       const studentId = student?.id || '';
 
-      await userService.markStudentTestApplicationAsInProgress(
-        disciplineId as string,
-        idOfThePermissionToSeeTests as string,
-        studentId as string,
-        quizData?.id as string,
-      );
+      await userService.markStudentTestApplicationAsInProgress({
+        entityId: disciplineId as string,
+        actionId: idOfThePermissionToSeeTests as string,
+        studentId: studentId as string,
+        testApplicationId: quizData?.id as string,
+      });
 
       console.log('Test marked as in progress successfully');
     } catch (error) {

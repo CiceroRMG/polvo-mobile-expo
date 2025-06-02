@@ -24,6 +24,13 @@ interface sendStudentQuestionAnswerParams {
   answerId: string;
 }
 
+interface MarkStudentTestApplicationParams {
+  entityId: string;
+  actionId: string;
+  studentId: string;
+  testApplicationId: string;
+}
+
 export const userService = {
   async getUserEnrolledSubjects(): Promise<EntityDataItem[]> {
     try {
@@ -97,12 +104,12 @@ export const userService = {
     }
   },
 
-  async markStudentTestApplicationAsInProgress(
-    entityId: string,
-    actionId: string,
-    studentId: string,
-    testApplicationId: string,
-  ) {
+  async markStudentTestApplicationAsInProgress({
+    entityId,
+    actionId,
+    studentId,
+    testApplicationId,
+  }: MarkStudentTestApplicationParams): Promise<void> {
     try {
       const response: AxiosResponse<BaseApiResponse<void>> = await api.post(
         `ehq/${entityId}/${actionId}/markStudentTestApplicationAsInProgress`,
@@ -115,6 +122,25 @@ export const userService = {
         'Error marking student test application as in progress:',
         error,
       );
+      throw error;
+    }
+  },
+
+  async markStudentTestApplicationAsCompleted({
+    entityId,
+    actionId,
+    studentId,
+    testApplicationId,
+  }: MarkStudentTestApplicationParams): Promise<void> {
+    try {
+      const response: AxiosResponse<BaseApiResponse<void>> = await api.post(
+        `ehq/${entityId}/${actionId}/markStudentTestApplicationAsCompleted`,
+        { studentId, testApplicationId },
+        { headers: tokenManager.getAuthencationHeaders() },
+      );
+      return response.data.data;
+    } catch (error) {
+      console.error('Erro marcando o teste como completo:', error);
       throw error;
     }
   },
