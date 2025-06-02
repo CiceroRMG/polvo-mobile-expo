@@ -208,10 +208,43 @@ export default function QuizDetail() {
                   {timeRemaining}
                 </Text>
               </View>
+
+              {/* Add test status indicator with appropriate styling */}
+              <View
+                className={`flex-row items-center rounded-lg p-3 ${
+                  quizData?.status === 'completed'
+                    ? 'bg-green-100'
+                    : quizData?.status === 'in-progress'
+                      ? 'bg-yellow-100'
+                      : 'bg-gray-100'
+                }`}
+              >
+                {quizData?.status === 'completed' ? (
+                  <>
+                    <View className="mr-2 h-3 w-3 rounded-full bg-green-500" />
+                    <Text className="text-base font-medium text-green-700">
+                      Teste finalizado
+                    </Text>
+                  </>
+                ) : quizData?.status === 'in-progress' ? (
+                  <>
+                    <View className="mr-2 h-3 w-3 rounded-full bg-yellow-500" />
+                    <Text className="text-base font-medium text-yellow-700">
+                      Teste em andamento
+                    </Text>
+                  </>
+                ) : (
+                  <>
+                    <View className="mr-2 h-3 w-3 rounded-full bg-gray-500" />
+                    <Text className="text-base font-medium text-gray-700">
+                      Teste não iniciado
+                    </Text>
+                  </>
+                )}
+              </View>
             </View>
 
-            {/* Only show the start button if time hasn't expired */}
-            {timeRemaining !== 'Prazo encerrado' && (
+            {quizData?.status !== 'completed' && (
               <AppButton
                 className="mt-4 w-40 py-2"
                 onPress={
