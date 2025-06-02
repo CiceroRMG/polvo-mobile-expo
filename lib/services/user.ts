@@ -17,11 +17,16 @@ interface getTestDetailsParams {
   testId: string;
 }
 
+export interface answer {
+  _id: string;
+  text: string;
+}
+
 interface sendStudentQuestionAnswerParams {
   studentId: string;
   testId: string;
   questionId: string;
-  answerId: string;
+  answers: answer[];
 }
 
 interface MarkStudentTestApplicationParams {
@@ -92,6 +97,16 @@ export const userService = {
     data: sendStudentQuestionAnswerParams,
   ) {
     try {
+      /* BEST DEBUGGING EVER
+      console.log('Request:', {
+        entityId,
+        actionId,
+        data: JSON.stringify(data),
+        headers: tokenManager.getAuthencationHeaders(),
+        route: `${api.defaults.baseURL}/ehq/${entityId}/${actionId}/studentQuestionAnswer`,
+        method: 'POST',
+      });
+ */
       const response: AxiosResponse<BaseApiResponse<void>> = await api.post(
         `ehq/${entityId}/${actionId}/studentQuestionAnswer`,
         data,
