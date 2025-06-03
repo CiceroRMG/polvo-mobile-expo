@@ -71,6 +71,7 @@ export default function QuizDetail() {
         quizzEndDate,
         refresh,
         disciplineTitle,
+        quizStatus: quizData?.status,
       },
     });
   };

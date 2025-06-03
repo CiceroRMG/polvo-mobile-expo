@@ -56,9 +56,22 @@ export default function QuizExecuteScreen() {
     quizzStartDate,
     quizzEndDate,
     disciplineTitle,
+    quizStatus,
   } = useLocalSearchParams();
 
   const timeRemaining = useCountdown(endDate as string);
+
+  useEffect(() => {
+    if (['completed', 'graded'].includes(quizStatus as string)) {
+      router.push({
+        pathname: '/disciplines/[disciplineId]/[quizId]',
+        params: {
+          disciplineId: disciplineId as string,
+          quizId: quizId as string,
+        },
+      });
+    }
+  }, [quizStatus]);
 
   useEffect(() => {
     (async () => {
