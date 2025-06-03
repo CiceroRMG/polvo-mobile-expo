@@ -30,8 +30,13 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "expo": "^52.0.25",
+    "expo-av": "~15.0.2",
+    "expo-blur": "~14.0.3",
+    "expo-camera": "~16.0.18",
+    "expo-constants": "~17.0.8",
     "expo-image": "~2.0.7",
     "expo-linking": "~7.0.5",
+    "expo-media-library": "~17.0.6",
     "expo-navigation-bar": "~4.0.7",
     "expo-router": "~4.0.20",
     "expo-secure-store": "~14.0.1",
@@ -55,12 +60,7 @@
     "tailwind-merge": "^2.2.1",
     "tailwindcss-animate": "^1.0.7",
     "zod": "^3.24.3",
-    "zustand": "^4.4.7",
-    "expo-constants": "~17.0.8",
-    "expo-blur": "~14.0.3",
-    "expo-camera": "~16.0.18",
-    "expo-media-library": "~17.0.6",
-    "expo-av": "~15.0.2"
+    "zustand": "^4.4.7"
   },
   "devDependencies": {
     "@babel/core": "^7.26.0",
