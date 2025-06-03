@@ -7,6 +7,7 @@ import { ActivityIndicator, Text, View } from 'react-native';
 import { AppBackButton } from '~/components/app/AppBackButton';
 import { AppButton } from '~/components/app/AppButton';
 import { AppModal } from '~/components/app/AppModal';
+import { Monitoring } from '~/components/app/Monitoring';
 import { useCountdown } from '~/hooks/useCountdown';
 import { storageService } from '~/lib/services/storage';
 import { userService } from '~/lib/services/user';
@@ -174,7 +175,6 @@ export default function QuizDetail() {
             }
           />
         </View>
-
         {isLoading ? (
           <ActivityIndicator size="large" color="#6200ee" className="mt-10" />
         ) : error ? (
@@ -277,6 +277,8 @@ export default function QuizDetail() {
                 {quizData?.status === 'no-started' ? 'Começar' : 'Continuar'}
               </AppButton>
             )}
+
+            <Monitoring />
           </View>
         )}
       </View>
