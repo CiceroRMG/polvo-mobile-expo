@@ -176,6 +176,7 @@ export const Monitoring: FC<MonitoringProps> = ({ onPermissionsChange }) => {
                 facing={'front'}
                 ratio="1:1"
                 style={{ flex: 1 }}
+                mode="contain"
                 onCameraReady={() => {
                   console.log('Câmera pronta!');
                   setCameraReady(true);

@@ -1,3 +1,4 @@
+import { Camera, CameraView } from 'expo-camera';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Alarm, Brain, Warning } from 'phosphor-react-native';
 import React, { useEffect, useState } from 'react';
@@ -43,6 +44,7 @@ export default function QuizExecuteScreen() {
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [showExitModal, setShowExitModal] = useState(false);
   const [showFinishModal, setShowFinishModal] = useState(false);
+  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
 
   const {
     disciplineId,
@@ -57,6 +59,13 @@ export default function QuizExecuteScreen() {
   } = useLocalSearchParams();
 
   const timeRemaining = useCountdown(endDate as string);
+
+  useEffect(() => {
+    (async () => {
+      const { status } = await Camera.requestCameraPermissionsAsync();
+      setHasPermission(status === 'granted');
+    })();
+  }, []);
 
   useEffect(() => {
     const setNextCurrentQuestion = () => {
@@ -215,7 +224,6 @@ export default function QuizExecuteScreen() {
     const questionId = currentQuestion.id;
     const currentAnswer = answers[questionId];
 
-    // Store answer with question ID as key
     setAnswers(prev => ({
       ...prev,
       [questionId]: userQuestionAnswer,
@@ -226,11 +234,56 @@ export default function QuizExecuteScreen() {
 
   return (
     <View className="flex-1 bg-background">
-      <AppBackButton
-        onPress={() => setShowExitModal(true)}
-        className="ml-4"
-        disabled={isSubmitting}
-      />
+      {/* Top Bar with Back Button and Camera View */}
+      <View className="flex-row items-center justify-between px-4 pb-2 pt-4">
+        <AppBackButton
+          onPress={() => setShowExitModal(true)}
+          disabled={isSubmitting}
+        />
+        {hasPermission === true ? (
+          <View
+            style={{
+              width: 60,
+              height: 90,
+              borderRadius: 8,
+              overflow: 'hidden',
+              borderWidth: 1,
+              borderColor: 'gray',
+            }}
+          >
+            {/* Fizerama a tipagem disso com a bunda, não tem a propriedade registrada */}
+            <CameraView style={{ flex: 1 }} facing="front" mode="contain" />
+          </View>
+        ) : (
+          <View
+            style={{
+              width: 60,
+              height: 90,
+              justifyContent: 'center',
+              alignItems: 'center',
+              borderColor: 'gray',
+              borderWidth: 1,
+              borderRadius: 8,
+              padding: 4,
+            }}
+          >
+            {hasPermission === false && (
+              <Text
+                style={{ fontSize: 10, textAlign: 'center', color: 'gray' }}
+              >
+                Camera permission denied.
+              </Text>
+            )}
+            {hasPermission === null && (
+              <Text
+                style={{ fontSize: 10, textAlign: 'center', color: 'gray' }}
+              >
+                Checking camera...
+              </Text>
+            )}
+          </View>
+        )}
+      </View>
 
       {/* Exit confirmation modal */}
       <AppModal
@@ -314,7 +367,8 @@ export default function QuizExecuteScreen() {
 
       {!loading && (
         <>
-          <View className="mb-12 w-full flex-row items-center justify-between px-6">
+          {/* Question Count and Timer Header */}
+          <View className="mb-4 mt-2 w-full flex-row items-center justify-between px-6">
             <View className="flex-row items-center gap-3">
               <Brain size={26} color="#4338CA" />
               <Text className="text-lg font-bold text-primary">
@@ -332,7 +386,7 @@ export default function QuizExecuteScreen() {
           <KeyboardAvoidingView
             className="flex-1"
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            keyboardVerticalOffset={32}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 32} // Adjusted for potentially taller header
           >
             <ScrollView
               className="flex-1 px-6"
