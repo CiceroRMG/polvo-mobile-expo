@@ -27,6 +27,7 @@ export default function QuizDetail() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [quizData, setQuizData] = useState<QuizData | null>(null);
+  const [permissionsGranted, setPermissionsGranted] = useState(false);
 
   const idOfThePermissionToSeeTests =
     process.env.EXPO_PUBLIC_API_SEE_TESTS_PERMISSION ?? '';
@@ -265,20 +266,31 @@ export default function QuizDetail() {
               </View>
             </View>
 
-            {!['completed', 'graded'].includes(quizData?.status ?? '') && (
-              <AppButton
-                className="mt-4 w-40 py-2"
-                onPress={
-                  quizData?.status === 'no-started'
-                    ? () => setModalVisible(true)
-                    : handleConfirm
-                }
-              >
-                {quizData?.status === 'no-started' ? 'Começar' : 'Continuar'}
-              </AppButton>
-            )}
+            {!['completed', 'graded'].includes(quizData?.status ?? '') &&
+              permissionsGranted && (
+                <AppButton
+                  className="mt-4 w-40 py-2"
+                  onPress={
+                    quizData?.status === 'no-started'
+                      ? () => setModalVisible(true)
+                      : handleConfirm
+                  }
+                >
+                  {quizData?.status === 'no-started' ? 'Começar' : 'Continuar'}
+                </AppButton>
+              )}
 
-            <Monitoring />
+            {!['completed', 'graded'].includes(quizData?.status ?? '') &&
+              !permissionsGranted && (
+                <Text className="mt-4 text-center font-medium text-amber-600">
+                  Por favor, permita acesso à câmera e microfone para iniciar a
+                  prova
+                </Text>
+              )}
+
+            <Monitoring
+              onPermissionsChange={granted => setPermissionsGranted(granted)}
+            />
           </View>
         )}
       </View>

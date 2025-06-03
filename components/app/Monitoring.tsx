@@ -16,7 +16,11 @@ import {
   ReanimatedLogLevel,
 } from 'react-native-reanimated';
 
-export const Monitoring: FC = () => {
+interface MonitoringProps {
+  onPermissionsChange?: (granted: boolean) => void;
+}
+
+export const Monitoring: FC<MonitoringProps> = ({ onPermissionsChange }) => {
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
   const [microphonePermission, requestMicrophonePermission] =
     useMicrophonePermissions();
@@ -31,6 +35,13 @@ export const Monitoring: FC = () => {
   });
 
   const mountTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (cameraPermission && microphonePermission) {
+      const granted = cameraPermission.granted && microphonePermission.granted;
+      onPermissionsChange?.(granted);
+    }
+  }, [cameraPermission, microphonePermission, onPermissionsChange]);
 
   useEffect(() => {
     mountTimeoutRef.current = setTimeout(() => {
