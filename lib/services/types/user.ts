@@ -84,3 +84,19 @@ export interface BaseApiResponse<T> {
   success: boolean;
   data: T;
 }
+
+interface Test {
+  _id: string;
+  initialDate: string;
+  endDate: string;
+  title: string;
+  id: string;
+}
+
+export interface GradedTestData {
+  status: 'graded';
+  test: Test;
+  id: string;
+  updatedAt: string;
+  grade: number;
+}

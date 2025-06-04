@@ -6,6 +6,7 @@ import { tokenManager } from '../auth/tokenManager';
 import {
   BaseApiResponse,
   EntityDataItem,
+  GradedTestData,
   SubjectTestDetails,
   TestDetailsData,
 } from './types/user';
@@ -156,6 +157,30 @@ export const userService = {
       return response.data.data;
     } catch (error) {
       console.error('Erro marcando o teste como completo:', error);
+      throw error;
+    }
+  },
+
+  async getGradedTestApplicationsByStudentId({
+    entityId,
+    actionId,
+    studentId,
+  }: {
+    entityId: string;
+    actionId: string;
+    studentId: string;
+  }) {
+    try {
+      const response: AxiosResponse<BaseApiResponse<GradedTestData[]>> =
+        await api.post(
+          `ehq/${entityId}/${actionId}/getGradedTestApplicationsByStudentId`,
+          { studentId },
+          { headers: tokenManager.getAuthencationHeaders() },
+        );
+
+      return response.data.data;
+    } catch (error) {
+      console.error('Erro ao buscar aplicações de teste avaliadas:', error);
       throw error;
     }
   },
