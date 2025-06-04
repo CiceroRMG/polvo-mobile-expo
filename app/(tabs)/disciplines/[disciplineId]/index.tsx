@@ -1,5 +1,5 @@
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   Text,
   View,
@@ -15,8 +15,8 @@ import { storageService } from '~/lib/services/storage';
 import { userService } from '~/lib/services/user';
 
 import { FinishedExamCard } from './components/finishedExamCard';
-import { TabHeader } from './components/tabHeader';
-import { getFinishedSubjectTestsMock } from './mocks/finishedTests';
+import TabHeader from './components/tabHeader';
+import { FinishedTest } from './mocks/finishedTests';
 
 type Test = {
   id: string;
@@ -26,15 +26,6 @@ type Test = {
   startDate: string;
   endDate: string;
   endingSoon?: boolean;
-};
-
-type FinishedTest = {
-  id: string;
-  title: string;
-  score: number;
-  maxScore: number;
-  startedAt: string;
-  endedAt: string;
 };
 
 export default function DisciplineDetail() {
@@ -72,7 +63,7 @@ export default function DisciplineDetail() {
       },
     });
 
-  const fetchAll = async () => {
+  const fetchAll = useCallback(async () => {
     try {
       setLoading(true);
       const userId = (await storageService.getUser())?._id;
@@ -101,21 +92,6 @@ export default function DisciplineDetail() {
         };
       });
 
-      // aqui faz a req para as provas concluídas
-      // (não sei se tem essa rota ou se ja vem junto com a outra)
-      const finishedTests = await getFinishedSubjectTestsMock();
-
-      const formattedFinishedTests: FinishedTest[] = finishedTests.map(
-        test => ({
-          id: test.id,
-          title: test.title,
-          score: test.score,
-          maxScore: test.maxScore,
-          startedAt: test.startedAt,
-          endedAt: test.endedAt,
-        }),
-      );
-
       setAvailableTests(
         formattedAvailableTests.sort((a, b) =>
           a.endingSoon && !b.endingSoon
@@ -125,7 +101,6 @@ export default function DisciplineDetail() {
               : 0,
         ),
       );
-      setFinishedTests(formattedFinishedTests);
       setError(null);
     } catch (err) {
       console.error(err);
@@ -134,17 +109,62 @@ export default function DisciplineDetail() {
       setLoading(false);
       setRefreshing(false);
     }
+  }, [disciplineId, idOfThePermissionToSeeTests]);
+
+  const formatDate = (isoDate: string): string => {
+    const date = new Date(isoDate);
+    return date.toLocaleString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
   };
+
+  const fetchGradedTests = useCallback(async () => {
+    try {
+      const userId = (await storageService.getUser())?._id;
+      if (!userId) throw new Error('User ID not found');
+      const finishedTestsApplicationsResponse =
+        await userService.getGradedTestApplicationsByStudentId({
+          entityId: disciplineId as string,
+          actionId: idOfThePermissionToSeeTests,
+          studentId: userId,
+        });
+
+      const finishedTestsApplications: FinishedTest[] =
+        finishedTestsApplicationsResponse.map(testApplications => ({
+          id: testApplications.id,
+          endedAt: formatDate(testApplications.test.endDate),
+          startedAt: formatDate(testApplications.test.initialDate),
+          title: testApplications.test.title,
+          score: testApplications.grade,
+          maxScore: 10,
+        }));
+
+      setFinishedTests(finishedTestsApplications);
+    } catch (error) {
+      console.error('Error fetching graded tests:', error);
+      setError('Erro ao carregar provas concluídas.');
+    }
+  }, [disciplineId, idOfThePermissionToSeeTests]);
+
+  useEffect(() => {
+    fetchGradedTests();
+  }, [fetchGradedTests]);
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     fetchAll();
-  }, [disciplineId]);
+    fetchGradedTests();
+  }, [fetchAll, fetchGradedTests]);
 
   useFocusEffect(
     useCallback(() => {
       fetchAll();
-    }, [disciplineId]),
+      fetchGradedTests();
+    }, [fetchAll, fetchGradedTests]),
   );
 
   const renderAvailableTests = ({ item }: { item: Test }) => (
