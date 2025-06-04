@@ -29,6 +29,7 @@
     --card-app: #f8f9fe;
     --text-purple: #4338ca;
     --border-color: #d4d6dd;
+    --card-dark: #eff0f2;
   }
 
   .dark:root {
@@ -57,5 +58,6 @@
     --card-app: #32393e;
     --text-purple: #4338ca;
     --border-color: #9b9c9e;
+    --card-dark: #27272a;
   }
 }
