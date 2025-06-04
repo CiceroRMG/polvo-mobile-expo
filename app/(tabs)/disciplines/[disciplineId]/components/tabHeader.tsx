@@ -9,7 +9,7 @@ interface Props {
   onChange: (t: Tab) => void;
 }
 
-export function TabHeader({ active, onChange }: Props) {
+export default function TabHeader({ active, onChange }: Props) {
   return (
     <View className="mb-4 flex-row  self-center rounded-xl bg-main-cardDark p-1">
       {(['available', 'done'] as Tab[]).map(tab => (
