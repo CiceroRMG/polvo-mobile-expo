@@ -48,6 +48,7 @@ module.exports = {
           inputText: 'var(--input-text)',
           card: 'var(--card-app)',
           borderColor: 'var(--border-color)',
+          cardDark: 'var(--card-dark)',
         },
       },
       borderWidth: {

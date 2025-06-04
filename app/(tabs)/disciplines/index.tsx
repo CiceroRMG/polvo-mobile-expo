@@ -1,13 +1,14 @@
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { CaretRight } from 'phosphor-react-native';
 import * as React from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import {
   Text,
   View,
   FlatList,
   Pressable,
   ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 
 import { AppCard } from '~/components/app/AppCard';
@@ -33,35 +34,49 @@ export default function Disciplines() {
   const [entities, setEntities] = useState<Subjects[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchSubjects = useCallback(async (showLoader = true) => {
+    try {
+      if (showLoader) setIsLoading(true);
+
+      const response = await userService.getUserEnrolledSubjects();
+
+      if (Array.isArray(response)) {
+        const formattedEntities: Subjects[] = response.map(entity => ({
+          id: entity.id || entity.id,
+          title: entity.title || '',
+          subtitle: entity.testCount + ' provas ativas',
+        }));
+
+        setEntities(formattedEntities);
+      } else {
+        console.error('Unexpected response format:', response);
+        setError('Formato de resposta inválido.');
+      }
+    } catch (err) {
+      console.error('Failed to fetch entities:', err);
+      setError('Falha ao carregar as disciplinas tente novamente.');
+    } finally {
+      setIsLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    fetchSubjects(false);
+  }, [fetchSubjects]);
 
   useEffect(() => {
-    const fetchSubjects = async () => {
-      try {
-        setIsLoading(true);
-        const response = await userService.getUserEnrolledSubjects();
-
-        if (Array.isArray(response)) {
-          const formattedEntities: Subjects[] = response.map(entity => ({
-            id: entity.id || entity.id,
-            title: entity.title || '',
-            subtitle: entity.testCount + ' provas ativas',
-          }));
-
-          setEntities(formattedEntities);
-        } else {
-          console.error('Unexpected response format:', response);
-          setError('Formato de resposta inválido.');
-        }
-      } catch (err) {
-        console.error('Failed to fetch entities:', err);
-        setError('Falha ao carregar as disciplinas tente novamente.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchSubjects();
-  }, []);
+  }, [fetchSubjects]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchSubjects(false);
+    }, [fetchSubjects]),
+  );
 
   return (
     <View className="flex-1 bg-background">
@@ -98,6 +113,14 @@ export default function Disciplines() {
               </Text>
             }
             showsVerticalScrollIndicator={false}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                colors={['#6200ee']}
+                tintColor="#6200ee"
+              />
+            }
           />
         )}
 

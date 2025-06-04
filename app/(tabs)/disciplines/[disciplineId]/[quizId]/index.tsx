@@ -167,7 +167,7 @@ export default function QuizDetail() {
             label={(quizzTitle as string) || 'Quiz'}
             labelClassName="text-3xl font-bold text-primary ml-2"
             onPress={() =>
-              router.push({
+              router.navigate({
                 pathname: '/disciplines/[disciplineId]',
                 params: {
                   disciplineId: disciplineId as string,
