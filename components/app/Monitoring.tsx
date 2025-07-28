@@ -1,5 +1,5 @@
 import { useCameraPermissions, useMicrophonePermissions } from 'expo-camera';
-import { CameraView } from 'expo-camera';
+import Peer, { MediaConnection } from 'peerjs';
 import { useState, FC, useEffect, useRef } from 'react';
 import {
   View,
@@ -15,12 +15,29 @@ import {
   configureReanimatedLogger,
   ReanimatedLogLevel,
 } from 'react-native-reanimated';
+import '../../lib/webrtc-setup';
+import { mediaDevices, MediaStream, RTCView } from 'react-native-webrtc';
 
+import { PeerJSConnectionStatus } from '../../lib/enums/peerJSConnectionStatus';
 interface MonitoringProps {
   onPermissionsChange?: (granted: boolean) => void;
+  examId: string;
 }
 
-export const Monitoring: FC<MonitoringProps> = ({ onPermissionsChange }) => {
+export const Monitoring: FC<MonitoringProps> = ({
+  onPermissionsChange,
+  examId,
+}) => {
+  const [localStream, setLocalStream] = useState<MediaStream | null>(null);
+  const [peer, setPeer] = useState<Peer | null>(null);
+  const [peerId, setPeerId] = useState<string>('');
+  const [peerStatus, setPeerStatus] = useState<PeerJSConnectionStatus>(
+    PeerJSConnectionStatus.Disconnected,
+  );
+
+  const peerRef = useRef<Peer | null>(null);
+  const activeCallRef = useRef<MediaConnection | null>(null);
+
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
   const [microphonePermission, requestMicrophonePermission] =
     useMicrophonePermissions();
@@ -53,6 +70,85 @@ export const Monitoring: FC<MonitoringProps> = ({ onPermissionsChange }) => {
       }
     };
   }, []);
+
+  const initializeMediaStream = async () => {
+    try {
+      const stream = await mediaDevices.getUserMedia({
+        video: true,
+        audio: true,
+      });
+      setLocalStream(stream);
+      setCameraReady(true);
+    } catch (error) {
+      console.error('Erro ao obter mídia:', error);
+      setCameraError('Não foi possível acessar a câmera ou microfone.');
+    }
+  };
+
+  useEffect(() => {
+    if (cameraPermission?.granted && microphonePermission?.granted) {
+      const newPeerId = `monitoring-${examId}`;
+      setPeerId(newPeerId);
+
+      const newPeer = new Peer(newPeerId, {
+        host: 'http://192.168.0.99/peer',
+        port: 9000,
+        path: '/meu-servidor-peer',
+        secure: false,
+        config: {
+          iceServers: [
+            { urls: 'stun:stun.l.google.com:19302' },
+            { urls: 'stun:stun1.l.google.com:19302' },
+          ],
+        },
+      });
+
+      peerRef.current = newPeer;
+      setPeer(newPeer);
+      setPeerStatus(PeerJSConnectionStatus.Connecting);
+
+      newPeer.on('open', id => {
+        console.log(`[PeerJS] Conectado ao servidor com o ID: ${id}`);
+        setPeerStatus(PeerJSConnectionStatus.Connected);
+        initializeMediaStream();
+      });
+
+      newPeer.on('call', call => {
+        console.log(`[PeerJS] Recebendo chamada de ${call.peer}`);
+        activeCallRef.current = call;
+
+        call.answer(localStream as never);
+
+        call.on('stream', remoteStream => {
+          console.log('[PeerJS] Stream remoto recebido.');
+        });
+
+        call.on('close', () => {
+          console.log('[PeerJS] A chamada foi encerrada.');
+          activeCallRef.current = null;
+        });
+      });
+
+      newPeer.on(PeerJSConnectionStatus.Error, err => {
+        console.error('[PeerJS] Erro:', err);
+        setCameraError(`Erro de conexão: ${err.type}`);
+        setPeerStatus(PeerJSConnectionStatus.Error);
+      });
+
+      newPeer.on(PeerJSConnectionStatus.Disconnected, () => {
+        console.log('[PeerJS] Desconectado do servidor.');
+        setPeerStatus(PeerJSConnectionStatus.Disconnected);
+      });
+
+      return () => {
+        console.log('[PeerJS] Limpando recursos...');
+        activeCallRef.current?.close();
+        localStream?.getTracks().forEach(track => track.stop());
+        peerRef.current?.destroy();
+      };
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cameraPermission, microphonePermission, examId]);
 
   // Verificar permissões
   if (!cameraPermission || !microphonePermission) {
@@ -171,21 +267,12 @@ export const Monitoring: FC<MonitoringProps> = ({ onPermissionsChange }) => {
             className="aspect-square h-56 w-56 overflow-hidden rounded-xl border-2 border-gray-100 bg-gray-50"
             style={styles.cameraContainer}
           >
-            {isActive ? (
-              <CameraView
-                facing={'front'}
-                ratio="1:1"
+            {localStream ? (
+              <RTCView
+                streamURL={localStream.toURL()}
                 style={{ flex: 1 }}
-                mode="contain"
-                onCameraReady={() => {
-                  console.log('Câmera pronta!');
-                  setCameraReady(true);
-                }}
-                onMountError={error => {
-                  console.error('Erro na montagem da câmera:', error);
-                  setCameraError(error?.message || 'Erro desconhecido');
-                  setIsActive(false);
-                }}
+                objectFit={'cover'}
+                mirror={true}
               />
             ) : (
               <View className="flex-1 items-center justify-center">
@@ -201,6 +288,13 @@ export const Monitoring: FC<MonitoringProps> = ({ onPermissionsChange }) => {
                 className={`font-semibold ${cameraReady ? 'text-green-600' : 'text-amber-600'}`}
               >
                 {cameraReady ? 'Câmera Ativa' : 'Inicializando...'}
+              </Text>
+              <Text className="mb-2 text-sm font-medium text-gray-700">
+                Conexão: <Text className="font-semibold">{peerStatus}</Text>
+              </Text>
+              <Text className="text-xs text-muted-foreground">
+                ID de Monitoramento:{' '}
+                <Text className="font-semibold">{peerId}</Text>
               </Text>
             </Text>
 
